@@ -5,8 +5,8 @@ set -euo pipefail
 VARIANT="${1:-userdebug}"
 DEV=ovaltine
 
-export USE_CCACHE=1
-export CCACHE_EXEC="$(command -v ccache || true)"
+export USE_CCACHE=0   # 一次性 CI 构建：冷 ccache 只会白吃 25G 磁盘
+
 export ANDROID_BUILD_SMP=$(( $(nproc) > 6 ? 6 : $(nproc) ))
 export TMPDIR="$PWD/.ci-tmp"; mkdir -p "$TMPDIR"
 df -h / | tail -1

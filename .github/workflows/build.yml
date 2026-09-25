@@ -132,9 +132,7 @@ jobs:
 
       - name: 编译
         run: |
-          ccache -M 25G 2>/dev/null || true; ccache -z 2>/dev/null || true
           bash ci/build.sh "${{ inputs.variant }}"
-          ccache -s 2>/dev/null | head -8
           df -h /
 
       - name: 收集产物
