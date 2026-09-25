@@ -7,11 +7,13 @@
 # 磁盘峰值 = 工作树 + .repo 对象库；分批的意义就是让两者不同时占满。
 set -uo pipefail
 
-SYNC_JOBS="${SYNC_JOBS:-32}"
-BATCHES="${BATCHES:-8}"
+SYNC_JOBS="${SYNC_JOBS:-16}"
+BATCHES="${BATCHES:-12}"
 SOFT="${SYNC_SOFT_SECS:-4500}"
 HARD="${SYNC_HARD_SECS:-13200}"
-LOW_DISK_G="${LOW_DISK_G:-95}"
+# 实测（run 36162392208）：单发同步 6 分钟就吃掉 72G（.repo 22G + 工作树 50G），
+# 对象树与工作树同时存在 → hosted 的 ~108G 必然爆盘。所以默认走分批（LOW_DISK_G 设很大）。
+LOW_DISK_G="${LOW_DISK_G:-999}"
 LFS_TREES="vendor/oneplus/ovaltine vendor/oneplus/sm8450-common"
 
 avail_g() { df --output=avail -BG / | tail -1 | tr -dc '0-9'; }
@@ -42,7 +44,7 @@ batched_sync() {  # 分批：每批结束立刻回收对象库
     [ "$(left_s)" -gt 300 ] || { echo "同步硬预算用尽"; return 1; }
     ok=0
     for try in 1 2 3; do
-      timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j8 --force-sync $(cat "$b") && { ok=1; break; }
+      timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j"$SYNC_JOBS" --force-sync $(cat "$b") && { ok=1; break; }
       echo "$(basename "$b") 第 $try 次失败（avail=$(avail_g)G），回收对象库后重试"
       rm -rf .repo/project-objects/*
       sleep 20
