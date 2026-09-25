@@ -7,7 +7,7 @@
 # 磁盘峰值 = 工作树 + .repo 对象库；分批的意义就是让两者不同时占满。
 set -uo pipefail
 
-SYNC_JOBS="${SYNC_JOBS:-16}"
+SYNC_JOBS="${SYNC_JOBS:-8}"
 BATCHES="${BATCHES:-16}"
 SOFT="${SYNC_SOFT_SECS:-4500}"
 HARD="${SYNC_HARD_SECS:-13200}"
@@ -18,6 +18,14 @@ LFS_TREES="vendor/oneplus/ovaltine vendor/oneplus/sm8450-common"
 
 avail_g() { df --output=avail -BG / | tail -1 | tr -dc '0-9'; }
 left_s() { echo $(( HARD - ( $(date +%s) - start ) )); }
+
+# googlesource 会按 IP 限流（run 36169431905 第 9 批起整批 HTTP 429）。
+# 新版 repo 自带逐仓重试，能用就用上；老版本没这个选项就退回外层重试。
+REPO_RETRY=""
+if repo sync --help 2>/dev/null | grep -q -- '--retry-fetches'; then
+  REPO_RETRY="--retry-fetches=6"
+  echo "启用 repo 逐仓重试 6 次"
+fi
 
 start=$(date +%s)
 PROG=""
@@ -45,7 +53,7 @@ batched_sync() {  # 分批：每批结束立刻回收对象库
   echo "分批同步：$(wc -l < /tmp/projects.txt) 个项目，$BATCHES 批（先单独拉 $(( $(echo $HEAVY | wc -w) )) 个肥的）"
   for h in $HEAVY; do
     [ "$(left_s)" -gt 300 ] || { echo "同步硬预算用尽"; return 1; }
-    timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j4 --force-sync "$h" || {
+    timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j4 --force-sync $RETRY "$h" || {
       echo "$h 同步失败（avail=$(avail_g)G）"; return 1; }
     rm -rf .repo/project-objects/*
     for s in ci/infra/slim.sh infra/slim.sh; do [ -f "$s" ] && { bash "$s" | tail -3; break; }; done
@@ -56,10 +64,10 @@ batched_sync() {  # 分批：每批结束立刻回收对象库
     [ "$(left_s)" -gt 300 ] || { echo "同步硬预算用尽"; return 1; }
     ok=0
     for try in 1 2 3; do
-      timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j"$SYNC_JOBS" --force-sync $(cat "$b") && { ok=1; break; }
+      timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j"$SYNC_JOBS" --force-sync $RETRY $(cat "$b") && { ok=1; break; }
       echo "$(basename "$b") 第 $try 次失败（avail=$(avail_g)G），回收对象库后重试"
       rm -rf .repo/project-objects/*
-      sleep 20
+      sleep 150
     done
     [ "$ok" = 1 ] || { echo "批 $(basename "$b") 同步失败"; return 1; }
     rm -rf .repo/project-objects/*
@@ -68,10 +76,16 @@ batched_sync() {  # 分批：每批结束立刻回收对象库
       [ -f "$s" ] && { bash "$s" | tail -4; break; }
     done
     echo "$(basename "$b") 完成，avail=$(avail_g)G 已用=$(( $(date +%s) - start ))s"
+    sleep 60   # googlesource 会按 IP 限流（实测第 9 批起整批 HTTP 429），批间留口气
   done
 }
 
-echo "=== 开始同步：可用 $(avail_g)G，软时限 ${SOFT}s，硬预算 ${HARD}s ==="
+# googlesource 会按 IP 限流（run 36169431905 第 9 批起整批 HTTP 429）。新一点的 repo 自带
+# 逐仓重试，能用就用；不支持就靠本脚本的批级重试。
+RETRY=""
+repo sync --help 2>&1 | grep -q -- '--retry-fetches' && RETRY="--retry-fetches=6"
+echo "repo 逐仓重试参数：${RETRY:-（该版本不支持，用批级重试）}"
+
 if [ "$(avail_g)" -lt "$LOW_DISK_G" ]; then
   echo "可用磁盘低于 ${LOW_DISK_G}G，直接走分批策略"
   batched_sync || exit 1

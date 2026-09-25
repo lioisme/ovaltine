@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  磁盘裁剪清单：同步前就从 manifest 里摘掉与 ovaltine 无关的项目（CTS、别的板子的预编译内核、
+  模拟器/cuttlefish/goldfish、主线模块的预编译 SDK、只服务检查类目标的 host 工具…）。
+  实测未裁剪时工作树 ~76G，12 分钟就能把 hosted 的 108G 吃到 4G；out/ 还要 40G+，所以必须裁。
+  名单与 default.xml 的 name 逐条对过（.fetch/cullpaths.txt + 生成脚本），不存在的名字会被 repo 报错。
+  判据：构建链自己要用的（abi-dumps、build-tools、clang、jdk、go、misc、sdk）一个不动。
+-->
+<manifest>
   <remove-project name="platform/cts" /> <!-- cts -->
   <remove-project name="device/generic/arm64" /> <!-- device/generic/arm64 -->
   <remove-project name="device/generic/armv7-a-neon" /> <!-- device/generic/armv7-a-neon -->
