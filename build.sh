@@ -8,6 +8,14 @@ DEV="${DEVICE:-ovaltine}"
 export USE_CCACHE=0                      # out/ 整体被 handoff 搬运，ccache 只会多吃磁盘
 export ANDROID_BUILD_SMP="${ANDROID_BUILD_SMP:-$(nproc)}"
 export TMPDIR="$PWD/.ci-tmp"; mkdir -p "$TMPDIR"
+
+# 构建期真正要用的包在这里自己补一遍（GKI 内核没有 bc/elfutils 会在最后几步才炸，
+# 那时候已经烧掉几小时）。CI 的 apt 步骤装的是同步/打包用的，这里补齐编译用的。
+SUDO=; [ "$(id -u)" != 0 ] && command -v sudo >/dev/null && SUDO=sudo
+if command -v apt-get >/dev/null 2>&1; then
+  $SUDO apt-get install -y --no-install-recommends bc bison flex libssl-dev libelf-dev \
+      dwarves cpio kmod xz-utils m4 >/dev/null 2>&1 || echo "提示：部分编译依赖没装上（$?）"
+fi
 echo "== nproc=$(nproc) smp=$ANDROID_BUILD_SMP"; df -h / | tail -1
 
 source build/envsetup.sh
