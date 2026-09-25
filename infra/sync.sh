@@ -38,7 +38,19 @@ trap 'kill $MON 2>/dev/null' EXIT
 
 batched_sync() {  # 分批：每批结束立刻回收对象库
   repo list -p 2>/dev/null | sort > /tmp/projects.txt
-  echo "分批同步：$(wc -l < /tmp/projects.txt) 个项目，$BATCHES 批"
+  # 最肥的先拉：此刻磁盘最空。clang 一个仓就要「对象库 + 工作树」两份几十 G，
+  # 等到最后再拉就撞在 avail 只剩十几 G 的时候（run 36169431905 实测 86 分钟时 avail=11G）。
+  HEAVY="prebuilts/clang/host/linux-x86 prebuilts/build-tools prebuilts/jdk/jdk21 prebuilts/jdk/jdk25 prebuilts/go/linux-x86 prebuilts/misc"
+  for h in $HEAVY; do grep -vx "$h" /tmp/projects.txt > /tmp/p2 && mv /tmp/p2 /tmp/projects.txt; done
+  echo "分批同步：$(wc -l < /tmp/projects.txt) 个项目，$BATCHES 批（先单独拉 $(( $(echo $HEAVY | wc -w) )) 个肥的）"
+  for h in $HEAVY; do
+    [ "$(left_s)" -gt 300 ] || { echo "同步硬预算用尽"; return 1; }
+    timeout -s INT -k 60 "$(left_s)" repo sync -c --no-tags -j4 --force-sync "$h" || {
+      echo "$h 同步失败（avail=$(avail_g)G）"; return 1; }
+    rm -rf .repo/project-objects/*
+    for s in ci/infra/slim.sh infra/slim.sh; do [ -f "$s" ] && { bash "$s" | tail -3; break; }; done
+    echo "  $h 落地，avail=$(avail_g)G"
+  done
   rm -f /tmp/batch.*; split -n "l/$BATCHES" /tmp/projects.txt /tmp/batch.
   for b in /tmp/batch.*; do
     [ "$(left_s)" -gt 300 ] || { echo "同步硬预算用尽"; return 1; }
