@@ -8,3 +8,4 @@ trap 'rm -rf "$dir"' EXIT
 cat > "$dir/$name"
 echo "  -> $name  $(du -h "$dir/$name" | cut -f1)"
 GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}" gh release upload "${TAG:?TAG}" "$dir/$name" --clobber
+bash "$(dirname "$0")/progress.sh" "已传 $name ($(du -h "$dir/$name" | cut -f1))" 2>/dev/null || true

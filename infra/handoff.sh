@@ -50,6 +50,7 @@ stream_fetch() {  # $1 = family
     url="$(asset_url "${fam}.tar.zst.part${i}")"
     [ -z "$url" ] && continue
     n=$((n+1)); printf '  <- %s.part%s\n' "$fam" "$i" >&2
+    [ -f "$ROOT/ci/infra/progress.sh" ] && bash "$ROOT/ci/infra/progress.sh" "取回 ${fam}.part${i}"
     curl -sL ${CURL_EXTRA:-} --retry 5 --retry-delay 15 -o - "$url" || return 1
   done
   [ "$n" -gt 0 ]

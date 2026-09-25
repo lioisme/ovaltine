@@ -18,14 +18,17 @@ avail_g() { df --output=avail -BG / | tail -1 | tr -dc '0-9'; }
 left_s() { echo $(( HARD - ( $(date +%s) - start ) )); }
 
 start=$(date +%s)
+PROG=""
+for c in ci/infra/progress.sh infra/progress.sh; do [ -f "$c" ] && PROG="$c" && break; done
 monitor() {
   # 心跳：耗时、可用磁盘、已登记项目数、.repo 体积 —— 用日志判读真实速率
+  local tick=0 line
   while :; do
     sleep 180
-    printf 'OBS +%ss avail=%sG projects=%s .repo=%s\n' \
-      "$(( $(date +%s) - start ))" "$(avail_g)" \
-      "$(wc -l < .repo/project.list 2>/dev/null || echo '?')" \
-      "$(du -sh .repo 2>/dev/null | cut -f1)"
+    tick=$((tick + 1))
+    line="+$(( $(date +%s) - start ))s avail=$(avail_g)G projects=$(wc -l < .repo/project.list 2>/dev/null || echo '?') .repo=$(du -sh .repo 2>/dev/null | cut -f1)"
+    printf 'OBS %s\n' "$line"
+    [ -n "$PROG" ] && [ $((tick % 2)) -eq 0 ] && bash "$PROG" "sync ${line}"
   done
 }
 monitor & MON=$!

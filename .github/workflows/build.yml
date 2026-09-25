@@ -141,8 +141,16 @@ jobs:
           [ "$left" -lt 900 ] && left=900          # 至少给 15 分钟，好让日志留下失败现场
           echo "== 本轮编译预算 ${left}s（约 $((left/60)) 分钟）"
           t0=$(date +%s)
+          : > "$RUNNER_TEMP/build.log"
+          # 跑中的 job 取不到部分日志，编译速率靠这条旁路透出（每 6 分钟一行）
+          ( while :; do
+              sleep 360
+              p=$(grep -aoE '\[ *[0-9]+%[ ]*[0-9]+ / [0-9]+\]' "$RUNNER_TEMP/build.log" 2>/dev/null | tail -1)
+              bash ci/infra/progress.sh "build ${p:-刚启动} avail=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')G"
+            done ) & WD=$!
           timeout -s INT -k 120 "$left" bash ci/build.sh "${{ inputs.variant }}" 2>&1 | tee "$RUNNER_TEMP/build.log"
           rc=${PIPESTATUS[0]}
+          kill $WD 2>/dev/null
           echo "BUILD_SECS=$(( $(date +%s) - t0 ))" >> "$GITHUB_ENV"
           echo "build_rc=$rc"
           [ "$rc" = 124 ] && echo "== 到达预算，已优雅中断（进度会存进 Release 供下一轮接力）"
