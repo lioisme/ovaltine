@@ -1,0 +1,69 @@
+name: chain-rom
+
+# build-rom 每轮结束后来这里报到：读 Release 里的 state.json，
+# 没出包且没超轮数就再排一轮 build-rom。出包或到上限就停下等人工看。
+
+on:
+  workflow_run:
+    workflows: [build-rom]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: chain-rom
+  cancel-in-progress: false
+
+env:
+  HANDOFF_TAG: ci-handoff
+  MAX_CYCLES: "10"
+
+jobs:
+  next:
+    name: 排下一轮
+    runs-on: ubuntu-24.04
+    if: contains(fromJSON('["success","failure"]'), github.event.workflow_run.conclusion)
+    steps:
+      - name: 读状态并决定是否接力
+        id: st
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f() { sed -n "s/.*\"$1\": *\"\{0,1\}\([^\",}]*\)\"\{0,1\}.*/\1/p" state.json | head -1; }
+          if ! gh release download "$HANDOFF_TAG" -p state.json -D . --clobber; then
+            # 没有状态文件 = 上一轮连记账都没跑到。只有近期不是连续失败才允许再开一轮，避免空转
+            bad=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?event=workflow_dispatch&per_page=4" \
+                  --jq '[.workflow_runs[] | select(.conclusion=="failure" or .conclusion=="cancelled")] | length')
+            if [ "${bad:-9}" -ge 3 ]; then echo "连续 ${bad} 轮没跑到记账步骤，停止接力"; exit 0; fi
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            echo "nxt_branch=lineage-23.2" >> "$GITHUB_OUTPUT"
+            echo "nxt_variant=userdebug" >> "$GITHUB_OUTPUT"
+            echo "无 state.json，重开一轮全量（近期失败数 $bad）"
+            exit 0
+          fi
+          cat state.json
+          done_v="$(f done)"; cyc="$(f cycle)"; branch="$(f branch)"; variant="$(f variant)"
+          echo "cycle=$cyc done=$done_v branch=$branch variant=$variant" | tee chain.log
+          case "$done_v:$cyc" in
+            true:*)     echo "已出包，接力完成" ;;
+            *:0|*:"")   echo "状态里没有轮次，停止接力" ;;
+            *)          if [ "${cyc:-0}" -ge "$MAX_CYCLES" ]; then
+                          echo "已到轮数上限 $MAX_CYCLES，停下等人工判断"
+                        else
+                          echo "go=true" >> "$GITHUB_OUTPUT"
+                          echo "nxt_branch=$branch" >> "$GITHUB_OUTPUT"
+                          echo "nxt_variant=$variant" >> "$GITHUB_OUTPUT"
+                        fi ;;
+          esac
+
+      - name: 触发下一轮 build-rom
+        if: steps.st.outputs.go == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run build.yml --ref "$GITHUB_REF_NAME" \
+            -f branch="${{ steps.st.outputs.nxt_branch }}" \
+            -f variant="${{ steps.st.outputs.nxt_variant }}"
+          echo "已排队下一轮（${{ steps.st.outputs.nxt_branch }} / ${{ steps.st.outputs.nxt_variant }}）"

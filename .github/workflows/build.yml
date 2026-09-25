@@ -1,5 +1,9 @@
 name: build-rom
 
+# 一次 hosted job（≤6h、磁盘 ~108G）装不下一整轮 LineageOS 构建，
+# 所以这个 workflow 是「一轮」：能续建就续建，干不完就把 tree/out 存进 Release，
+# 由 chain.yml 在 job 结束后自动再排一轮，直到 out/dist 里出现可刷 zip。
+
 on:
   workflow_dispatch:
     inputs:
@@ -8,50 +12,50 @@ on:
         type: choice
         default: lineage-23.2
         options: [lineage-21.0, lineage-22.2, lineage-23.2]
-      runner:
-        description: Runner 规格
-        type: choice
-        default: ubuntu-24.04
-        options: [ubuntu-24.04, self-hosted]
       variant:
         description: "构建类型"
         type: choice
         default: userdebug
         options: [userdebug, eng]
-      repopick:
-        description: "额外 gerrit topic（留空则不挑）"
-        default: ""
       use_cn_patches:
-        description: "应用 patches/ 下的 PGP110 补丁（需先自提国行 blob）"
+        description: "应用 patches/ 下的 PGP110 补丁（国行身份 + 自提指纹 HAL）"
         type: boolean
         default: false
-      prune_repo:
-        description: "同步后强制清理 .repo 对象库（省磁盘）"
+      reset:
+        description: "忽略续建存档，强制全量重新同步"
         type: boolean
         default: false
 
+permissions:
+  contents: write
+
+concurrency:
+  group: build-rom
+  cancel-in-progress: false
+
 env:
   DEVICE: ovaltine
+  HANDOFF_TAG: ci-handoff
+  RESERVE_MIN: "45"        # 留给打包上传的时间
 
 jobs:
   rom:
     name: ${{ inputs.branch }} / ${{ inputs.variant }}
-    runs-on: ${{ inputs.runner }}
-    timeout-minutes: 540
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
     steps:
-      - name: 取用本仓配置（manifest + 构建脚本）
+      - name: 取用本仓配置（infra + build.sh + manifest 模板）
         uses: actions/checkout@v4
         with: { path: ci }
 
       - name: 装依赖并腾空磁盘
         run: |
-          # root 或有 sudo 时才提权；self-hosted runner 可能已是 root 或已预装依赖
           SUDO=; if [ "$(id -u)" != 0 ]; then command -v sudo >/dev/null && SUDO=sudo; fi
           $SUDO rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
           $SUDO apt-get update -y || echo "apt update 失败（可能非 Ubuntu runner）"
           # 逐包安装：个别包名在新版镜像里不存在时不整体失败
           for p in git git-lfs curl wget unzip zip bison flex build-essential g++ gawk bzip2 \
-                   lz4 zstd swig ccache rsync file xmlstarlet libxml2-utils device-tree-compiler \
+                   lz4 zstd swig rsync file xmlstarlet device-tree-compiler \
                    python3 python3-pip python3-mako python3-protobuf python3-setuptools \
                    python3-yaml python3-lxml openjdk-17-jdk-headless srecord schedtool \
                    libgl1-mesa-dev x11proto-core-dev; do
@@ -59,9 +63,24 @@ jobs:
           done
           $SUDO curl -sL -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
           $SUDO chmod a+x /usr/local/bin/repo
-          nproc; free -g | head -2; df -h /
+          echo "JOB_START=$(date +%s)" >> "$GITHUB_ENV"
+          nproc; free -g | head -2; df -h / | tail -1
 
-      - name: 生成 local_manifest
+      - name: 探测续建存档
+        id: probe
+        continue-on-error: true
+        run: |
+          if [ "${{ inputs.reset }}" = "true" ]; then echo "显式 reset，走全量同步"; exit 1; fi
+          bash ci/infra/handoff.sh probe
+
+      - name: 定轮次（读 Release 里的 state.json）
+        run: bash ci/infra/cycle.sh
+
+      - name: 全量同步（单发优先，爆盘则分批）
+        id: sync
+        if: steps.probe.outcome != 'success'
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"
         run: |
           set -e
           PLAT="${{ inputs.branch }}"
@@ -70,93 +89,119 @@ jobs:
           sed -e "s#@PLATFORM@#$PLAT#g" -e "s#@COMMUNITY@#$COMMUNITY#g" \
               ci/local_manifests/ovaltine.xml > .repo/local_manifests/ovaltine.xml
           grep -E "remote name=|revision=" .repo/local_manifests/ovaltine.xml
-
-      - name: repo init
-        run: |
           git config --global user.email ci@invalid && git config --global user.name ci
-          repo init -u https://github.com/LineageOS/android -b "${{ inputs.branch }}" \
-               --depth=1 --git-lfs
-          df -h /
+          repo init -u https://github.com/LineageOS/android -b "$PLAT" --depth=1 --git-lfs
+          # 同步最多占到「总预算 - 收尾 - 编译保底 90 分钟」
+          now=$(date +%s)
+          hard=$(( (350 - RESERVE_MIN - 90) * 60 - (now - JOB_START) ))
+          export SYNC_HARD_SECS=$hard
+          echo "== 同步硬预算 ${hard}s"
+          t0=$(date +%s)
+          bash ci/infra/sync.sh
+          echo "SYNC_SECS=$(( $(date +%s) - t0 ))" >> "$GITHUB_ENV"
 
-      # 峰值 = 工作树 + .repo 对象库。一次性同步会同时持有两份 → 实测在 108G 上爆盘。
-      # 分批同步，每批结束立刻删掉该批的对象库（工作树已落地；未同步的项目下一批自己再拉）。
-      - name: repo sync（分批 + 每批回收对象库）
-        timeout-minutes: 240
-        shell: bash
-        env:
-          GIT_LFS_SKIP_SMUDGE: "1"
+      - name: 取回上一轮的 tree + out
+        id: get
+        if: steps.probe.outcome == 'success'
         run: |
-          set -o pipefail
-          repo list -p | sort > /tmp/projects.txt
-          echo "项目数=$(wc -l < /tmp/projects.txt)"
-          split -n l/12 /tmp/projects.txt /tmp/batch.
-          for b in /tmp/batch.*; do
-            echo "=== $(basename "$b"): $(wc -l < "$b") 个项目 ==="
-            ok=0
-            for try in 1 2 3; do
-              if repo sync -c --no-tags -j8 --force-sync $(cat "$b"); then ok=1; break; fi
-              echo "第 $try 次失败，重试"; sleep 20
-            done
-            [ "$ok" = 1 ] || { echo "批 $(basename "$b") 同步失败"; exit 1; }
-            echo "对象库: $(du -sh .repo/project-objects 2>/dev/null | cut -f1) -> 回收"
-            rm -rf .repo/project-objects/*
-            df -h / | tail -1
-          done
-          for t in vendor/oneplus/ovaltine vendor/oneplus/sm8450-common; do
-            [ -d "$t" ] && { git -C "$t" lfs pull 2>/dev/null || true; }
-          done
-          test -d device/oneplus/ovaltine && test -f kernel/oneplus/sm8450/Makefile || { echo "关键仓库缺失"; exit 1; }
-          du -sh .repo; df -h /
-          # 为下一轮裁剪提供依据：谁在吃磁盘
-          echo "=== 顶层占用 top15 ==="; du -xsh .repo */ 2>/dev/null | sort -h | tail -15
+          set -e
+          t0=$(date +%s)
+          bash ci/infra/handoff.sh get
+          echo "SYNC_SECS=resume:$(( $(date +%s) - t0 ))s" >> "$GITHUB_ENV"
 
-      - name: 空间不足时回收 .repo 对象库
-        run: |
-          AVAIL=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
-          echo "根盘可用 ${AVAIL}G（LineageOS 浅同步约 60-80G，out/ 还要 40-60G）"
-          if [ "${{ inputs.prune_repo }}" = "true" ] || [ "$AVAIL" -lt 70 ]; then
-            echo "== 删除 .repo 里的 git 对象库（编译阶段不再需要 git 历史）"
-            du -sh .repo || true
-            find .repo -maxdepth 3 -type d -name 'project-objects' -prune -exec rm -rf {} + 2>/dev/null || true
-            find . -mindepth 2 -type d -name '.git' -prune -exec rm -rf {} + 2>/dev/null || true
-            du -sh .repo || true; df -h /
-          fi
-
-      - name: 应用本地补丁（文件名用下划线代替路径分隔，如 device_oneplus_ovaltine.patch）
+      - name: 应用本地补丁（文件名用下划线代替路径分隔）
         if: ${{ inputs.use_cn_patches }}
         run: |
+          set -e
           shopt -s nullglob
           for f in ci/patches/*.patch; do
             p="$(basename "$f" .patch | tr '_' '/')"
-            echo "== git -C $p apply $(basename "$f")"
-            git -C "$p" apply -p1 --whitespace=nowarn "$GITHUB_WORKSPACE/$f"
-            git -C "$p" diff --stat
+            echo "== patch -p1 -d $p < $(basename "$f")"
+            ( cd "$p" && patch -p1 --fuzz=0 -i "$GITHUB_WORKSPACE/$f" )
           done
 
-      - name: 挑 gerrit 补丁（可选）
-        if: ${{ inputs.repopick != '' }}
-        run: repopick -t "${{ inputs.repopick }}"
+      - name: 回收 git 元数据与非用 clang 版本（给 out/ 腾地方）
+        run: bash ci/infra/prune.sh && bash ci/infra/slim.sh
 
-      - name: 编译
+      # 源码树一旦齐了就立刻存档：后面编译哪怕炸了，下一轮也不用再花几小时同步
+      - name: 存档源码树（仅同步成功轮）
+        if: steps.sync.outcome == 'success'
+        env:
+          BRANCH: ${{ inputs.branch }}
+          VARIANT: ${{ inputs.variant }}
+          NOTE: tree@sync
+        run: bash ci/infra/handoff.sh save-tree
+
+      - name: 编译（按剩余预算限时，到点优雅收尾）
+        id: build
         run: |
-          bash ci/build.sh "${{ inputs.variant }}"
-          df -h /
+          set +e
+          now=$(date +%s)
+          left=$(( (350 - RESERVE_MIN) * 60 - (now - JOB_START) ))
+          [ "$left" -lt 900 ] && left=900          # 至少给 15 分钟，好让日志留下失败现场
+          echo "== 本轮编译预算 ${left}s（约 $((left/60)) 分钟）"
+          t0=$(date +%s)
+          timeout -s INT -k 120 "$left" bash ci/build.sh "${{ inputs.variant }}" 2>&1 | tee "$RUNNER_TEMP/build.log"
+          rc=${PIPESTATUS[0]}
+          echo "BUILD_SECS=$(( $(date +%s) - t0 ))" >> "$GITHUB_ENV"
+          echo "build_rc=$rc"
+          [ "$rc" = 124 ] && echo "== 到达预算，已优雅中断（进度会存进 Release 供下一轮接力）"
+          echo "BUILD_RC=$rc" >> "$GITHUB_ENV"
+          exit 0
 
-      - name: 收集产物
+      - name: 判定产物
+        id: verdict
+        run: |
+          zip=$(find out -maxdepth 3 -type f -name 'lineage*.zip' 2>/dev/null | head -1)
+          if [ -n "$zip" ]; then
+            echo "done=true" >> "$GITHUB_OUTPUT"
+            echo "DONE=true" >> "$GITHUB_ENV"
+            echo "ROM=$zip" >> "$GITHUB_ENV"
+            ls -lh "$zip"; sha256sum "$zip" | tee rom.sha256
+          else
+            echo "done=false" >> "$GITHUB_OUTPUT"
+            echo "DONE=false" >> "$GITHUB_ENV"
+            echo "== 还没出包；本轮 out/ 进度将被保存"
+            du -xsh out */ 2>/dev/null | sort -h | tail -10
+            echo "== 编译日志尾部 =="; tail -40 "$RUNNER_TEMP/build.log" 2>/dev/null || true
+          fi
+          df -h / | tail -1
+
+      - name: 存档 out/ 并写回状态
+        if: always() && steps.get.outcome != 'failure'
+        env:
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          BRANCH: ${{ inputs.branch }}
+          VARIANT: ${{ inputs.variant }}
+          NOTE: ${{ steps.verdict.outputs.done == 'true' && 'rom-ready' || 'partial' }}
+        run: bash ci/infra/handoff.sh save-out
+
+      - name: 收集并上传 ROM
+        if: steps.verdict.outputs.done == 'true'
         run: |
           set -e
           mkdir -p artifacts
-          # 只收 zip（ROM/OTA/target_files），不收 super.img 这类几 GB 的裸镜像
-          find out -maxdepth 3 -type f \( -name 'lineage*.zip' -o -name '*ota*.zip' -o -name '*target_files*.zip' \) \
-               -exec cp -v {} artifacts/ \; 2>/dev/null || true
-          ls -lh artifacts || true
+          find out -maxdepth 3 -type f \( -name 'lineage*.zip' -o -name '*target_files*.zip' \) -exec cp -v {} artifacts/ \;
           ( cd artifacts && sha256sum *.zip > SHA256SUMS && cat SHA256SUMS )
-          test "$(ls -A artifacts/*.zip 2>/dev/null | head -1)" || { echo "没有生成 zip，见上一步 find 输出"; exit 1; }
-
-      - name: 上传 ROM
+          test -s artifacts/SHA256SUMS
+      - name: 上传 ROM 产物
+        if: steps.verdict.outputs.done == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ovaltine-${{ inputs.branch }}-${{ inputs.variant }}
           path: artifacts/*
           if-no-files-found: error
           retention-days: 30
+
+      - name: 写本轮小结
+        if: always()
+        run: |
+          {
+            echo "## ovaltine 构建轮次小结"
+            echo "- 分支/类型：${{ inputs.branch }} / ${{ inputs.variant }}"
+            echo "- 起点：$([ "${{ steps.probe.outcome }}" = success ] && echo 续建（Release 取回） || echo 全量同步)"
+            echo "- 同步耗时：${SYNC_SECS:-?}s  编译耗时：${BUILD_SECS:-?}s  编译退出码：${BUILD_RC:-?}"
+            echo "- 是否出包：**${DONE:-false}** ${ROM:-}"
+            echo "- 磁盘：$(df -h / | tail -1)"
+            echo "- 状态存档：Release \`$HANDOFF_TAG\`（tree/out 分片）"
+          } >> "$GITHUB_STEP_SUMMARY"
