@@ -39,12 +39,14 @@ jobs:
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache "$AGENT_TOOLSDIRECTORY" || true
           sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends git git-lfs ccache curl wget unzip zip \
-            bison flex build-essential g++ gawk bzip2 lz4 zstd schedtool srecord swig \
-            device-tree-compiler rsync file xmlstarlet libxml2-utils libsdl1.2-dev \
-            libesd0-dev libgl1-mesa-dev x11proto-core-dev python3 python3-pip python3-mako \
-            python3-protobuf python3-setuptools python3-yaml python3-lxml python3-pyyaml \
-            openjdk-17-jdk-headless
+          # 逐包安装：个别包名在新版镜像里不存在时不整体失败
+          for p in git git-lfs curl wget unzip zip bison flex build-essential g++ gawk bzip2 \
+                   lz4 zstd swig ccache rsync file xmlstarlet libxml2-utils device-tree-compiler \
+                   python3 python3-pip python3-mako python3-protobuf python3-setuptools \
+                   python3-yaml python3-lxml openjdk-17-jdk-headless srecord schedtool \
+                   libgl1-mesa-dev x11proto-core-dev; do
+            sudo apt-get install -y --no-install-recommends "$p" >/dev/null 2>&1 || echo "跳过不存在的包: $p"
+          done
           sudo curl -sL -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
           sudo chmod a+x /usr/local/bin/repo
           cp ci/build.sh ./build.sh; chmod +x build.sh
