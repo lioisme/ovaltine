@@ -26,7 +26,8 @@ release_ensure() {
   ghx release view "$TAG" >/dev/null 2>&1 && return 0
   # 工作区根目录不是 git 仓库（本仓被 checkout 到 ci/），必须显式给 gh 一个 target 分支
   ghx release create "$TAG" --target "${HANDOFF_TARGET:-main}" --prerelease \
-      --title "CI 续建状态（勿删）" --notes "build.yml 跨 job 搬运 tree/out 用"
+      --title "CI 续建状态（勿删）" --notes "build.yml 跨 job 搬运 tree/out 用" \
+    || echo "!! gh release create $TAG 失败 rc=$?（token 是否 contents:write？GH_REPO=${GH_REPO:-}）"
 }
 
 asset_url() {
