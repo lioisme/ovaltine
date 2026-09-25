@@ -185,11 +185,26 @@ jobs:
         id: verdict
         run: |
           zip=$(find out -maxdepth 3 -type f -name 'lineage*.zip' 2>/dev/null | head -1)
+          if [ -z "$zip" ] && [ "${{ inputs.targets }}" = droid ]; then
+            # 只出镜像这条路：分区镜像齐了就算可刷产物（fastbootd 刷入）
+            P=out/target/product/ovaltine
+            imgs=""
+            for i in super.img boot.img vendor_boot.img init_boot.img dtbo.img vbmeta.img \
+                     vbmeta_system.img vbmeta_vendor.img recovery.img vendor_dlkm.img; do
+              [ -f "$P/$i" ] && imgs="$imgs $i"
+            done
+            if echo "$imgs" | grep -q super.img && echo "$imgs" | grep -q boot.img; then
+              mkdir -p artifacts
+              ( cd "$P" && zip -q -r "$OLDPWD/artifacts/ovaltine-lineage-${{ inputs.branch }}-$(date -u +%Y%m%d)-images.zip" $imgs )
+              zip=artifacts/$(basename "$(ls artifacts/*-images.zip | head -1)")
+              echo "可刷镜像齐了：$imgs"
+            fi
+          fi
           if [ -n "$zip" ]; then
             echo "done=true" >> "$GITHUB_OUTPUT"
             echo "DONE=true" >> "$GITHUB_ENV"
             echo "ROM=$zip" >> "$GITHUB_ENV"
-            ls -lh "$zip"; sha256sum "$zip" | tee rom.sha256
+            ls -lh $zip; sha256sum $zip | tee rom.sha256
           else
             echo "done=false" >> "$GITHUB_OUTPUT"
             echo "DONE=false" >> "$GITHUB_ENV"
