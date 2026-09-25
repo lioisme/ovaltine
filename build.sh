@@ -35,17 +35,21 @@ echo "== lunch 目标: ${TARGET_PRODUCT:-?} / ${TARGET_RELEASE:-默认} / $VARIA
 TARGETS="${BUILD_TARGETS-dist}"
 # droid = 默认目标（只做到分区镜像，不做 dist 的 target_files/otatools/symbols 打包）
 [ "$TARGETS" = droid ] && TARGETS=""
-# 边编边回收：symbols/nativetest 是纯副产物，刷机用不到；ninja 只在 dist 打包时才要它们
+# 边编边回收：symbols/nativetest 是纯副产物；更狠的一招是删「已经被链接吃掉的旧 .o/.a」。
+# 在 ext4 上 unlink 正被读取的文件是安全的（inode 活到 close），所以删旧对象文件不会打断在跑的动作；
+# 万一某个 .o 的链接还没跑，ninja 只会把那几个文件重编一遍 —— 慢，但不会错。
 reaper() {
   while :; do
     sleep 300
     a=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
-    if [ "${a:-99}" -lt 20 ]; then
-      echo "REAP avail=${a}G → 清理 symbols / nativetest 副产物"
-      du -xsh out/*/linux-x86/nativetest* out/target/product/*/symbols out/soong/.intermediates/*/symbols 2>/dev/null | tail -5
-      rm -rf out/target/product/*/symbols out/host/linux-x86/nativetest* out/host/linux-x86/test-suites 2>/dev/null
-      df -h / | tail -1
+    [ "${a:-99}" -ge 20 ] && continue
+    echo "REAP avail=${a}G → 清 symbols / nativetest"
+    rm -rf out/target/product/*/symbols out/host/linux-x86/nativetest* out/host/linux-x86/test-suites 2>/dev/null
+    if [ "${a:-99}" -lt 12 ]; then
+      echo "REAP avail=${a}G → 清 45 分钟前的 .o/.a（缺的链接产物让 ninja 自己补编）"
+      find out -type f \( -name '*.o' -o -name '*.a' \) -mmin +45 -delete 2>/dev/null
     fi
+    df -h / | tail -1
   done
 }
 reaper & REAP=$!

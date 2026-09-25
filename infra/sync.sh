@@ -8,7 +8,7 @@
 set -uo pipefail
 
 SYNC_JOBS="${SYNC_JOBS:-8}"
-BATCHES="${BATCHES:-16}"
+BATCHES="${BATCHES:-40}"
 SOFT="${SYNC_SOFT_SECS:-4500}"
 HARD="${SYNC_HARD_SECS:-13200}"
 # 实测（run 36162392208）：单发同步 6 分钟吃 72G（.repo 22G + 工作树 50G），对象库与工作树

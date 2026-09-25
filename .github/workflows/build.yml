@@ -61,7 +61,11 @@ jobs:
       - name: 装依赖并腾空磁盘
         run: |
           SUDO=; if [ "$(id -u)" != 0 ]; then command -v sudo >/dev/null && SUDO=sudo; fi
-          $SUDO rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
+          # 尽量多腾盘：hosted 只有 ~108G 可用，而工作树要 77G、out/ 还要几十 G
+          $SUDO rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache \
+              /usr/share/miniconda /usr/local/.ghcup /usr/local/share/chromium \
+              /var/lib/docker/image /var/lib/docker/overlay2 "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
+          $SUDO docker rmi -f $(docker images -aq 2>/dev/null) 2>/dev/null || true
           $SUDO apt-get update -y || echo "apt update 失败（可能非 Ubuntu runner）"
           # 逐包安装：个别包名在新版镜像里不存在时不整体失败
           for p in git git-lfs curl wget unzip zip bison flex build-essential g++ gawk bzip2 \
@@ -107,7 +111,7 @@ jobs:
           repo init -u https://github.com/LineageOS/android -b "$PLAT" --depth=1 --git-lfs
           # 同步最多占到「总预算 - 收尾 - 编译保底 90 分钟」
           now=$(date +%s)
-          hard=$(( (350 - RESERVE_MIN - 90) * 60 - (now - JOB_START) ))
+          hard=$(( (350 - RESERVE_MIN - 20) * 60 - (now - JOB_START) ))
           export SYNC_HARD_SECS=$hard
           echo "== 同步硬预算 ${hard}s"
           t0=$(date +%s)
