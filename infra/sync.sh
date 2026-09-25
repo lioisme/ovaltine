@@ -19,14 +19,6 @@ LFS_TREES="vendor/oneplus/ovaltine vendor/oneplus/sm8450-common"
 avail_g() { df --output=avail -BG / | tail -1 | tr -dc '0-9'; }
 left_s() { echo $(( HARD - ( $(date +%s) - start ) )); }
 
-# googlesource 会按 IP 限流（run 36169431905 第 9 批起整批 HTTP 429）。
-# 新版 repo 自带逐仓重试，能用就用上；老版本没这个选项就退回外层重试。
-REPO_RETRY=""
-if repo sync --help 2>/dev/null | grep -q -- '--retry-fetches'; then
-  REPO_RETRY="--retry-fetches=6"
-  echo "启用 repo 逐仓重试 6 次"
-fi
-
 start=$(date +%s)
 PROG=""
 for c in ci/infra/progress.sh infra/progress.sh; do [ -f "$c" ] && PROG="$c" && break; done
