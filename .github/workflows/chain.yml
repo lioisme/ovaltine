@@ -68,5 +68,6 @@ jobs:
         run: |
           gh workflow run build.yml --ref "$GITHUB_REF_NAME" \
             -f branch="${{ steps.st.outputs.nxt_branch }}" \
-            -f variant="${{ steps.st.outputs.nxt_variant }}" \n            -f targets="${{ steps.st.outputs.nxt_targets }}"
+            -f variant="${{ steps.st.outputs.nxt_variant }}" \
+            -f targets="${{ steps.st.outputs.nxt_targets }}"
           echo "已排队下一轮（${{ steps.st.outputs.nxt_branch }} / ${{ steps.st.outputs.nxt_variant }}）"
