@@ -107,6 +107,8 @@ jobs:
           done
           test -d device/oneplus/ovaltine && test -f kernel/oneplus/sm8450/Makefile || { echo "关键仓库缺失"; exit 1; }
           du -sh .repo; df -h /
+          # 为下一轮裁剪提供依据：谁在吃磁盘
+          echo "=== 顶层占用 top15 ==="; du -xsh .repo */ 2>/dev/null | sort -h | tail -15
 
       - name: 空间不足时回收 .repo 对象库
         run: |
