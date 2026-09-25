@@ -4,18 +4,16 @@ on: { workflow_dispatch: {} }
 
 jobs:
   probe:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-16core]
-    name: ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
     steps:
-      - run: |
-          echo "label=${{ matrix.os }}"
-          nproc; free -g | head -2
-          df -h / "$RUNNER_TEMP" /mnt 2>/dev/null
-          sudo swapoff -a 2>/dev/null; free -g | head -2
-          cat /proc/cpuinfo | grep -m1 "model name"
-          java -version 2>&1 | head -1; python3 -V; git --version
+      - name: 容量实测
+        run: |
+          echo "nproc=$(nproc)"; free -m | head -2
+          echo "=== 挂载表（看 /mnt 是否是独立盘）==="
+          lsblk -o NAME,SIZE,MOUNTPOINT 2>/dev/null | head -20
+          df -hT / /mnt /tmp /home "$RUNNER_TEMP" 2>/dev/null
+          echo "=== /mnt 写入试验 ==="
+          sudo mkdir -p /mnt/t && sudo dd if=/dev/zero of=/mnt/t/x bs=1M count=512 status=none && ls -l /mnt/t/x && sudo rm -rf /mnt/t
+          echo "=== 现有可释放空间 ==="
+          du -sh /usr/share/dotnet /usr/local/lib/android /opt/gh* /usr/local/share/boost 2>/dev/null
