@@ -31,7 +31,9 @@ repo forall -c 'git lfs pull'
 | `.github/workflows/build.yml` | 编译编排（依赖安装 → 浅同步 → 编译 → 收产物） |
 | `local_manifests/ovaltine.xml` | 设备树/内核/blob 清单模板（`@PLATFORM@`/`@COMMUNITY@` 占位） |
 | `build.sh` | 构建入口（限并行度与 JVM 堆，避免 runner OOM） |
-| `资料清单与缺口分析.md` | 资料分层清单 + 缺口台账 G1–G15 + 底包/dts/Actions 判定 |
+| `资料清单.md` | 逐项资料清单（来源 + 置信度 A/B/C） |
+| `资料清单与缺口分析.md` | 缺口台账 G1–G15、底包/dts/Actions 实测判定 |
+| `任务文档.md` | 执行清单与验收门（G-A…G-E、P1–P4），当前进度以此为准 |
 
 ## 实测的算力结论（2026-09-25）
 
