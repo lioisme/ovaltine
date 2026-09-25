@@ -120,6 +120,13 @@ jobs:
           set -e
           t0=$(date +%s)
           bash ci/infra/handoff.sh get
+          # 存档可能被别的进程动过（被取消的轮的僵尸进程还在传同名分片）→ 体检不过就增量修复
+          if ! bash ci/infra/verify-tree.sh; then
+            echo "== 体检不过，走同步修复（只补差异）"
+            now=$(date +%s)
+            export SYNC_HARD_SECS=$(( (350 - RESERVE_MIN - 90) * 60 - (now - JOB_START) ))
+            bash ci/infra/sync.sh
+          fi
           echo "SYNC_SECS=resume:$(( $(date +%s) - t0 ))s" >> "$GITHUB_ENV"
 
       - name: 应用本地补丁（文件名用下划线代替路径分隔）
