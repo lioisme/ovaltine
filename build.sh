@@ -30,7 +30,7 @@ reaper() {
   while :; do
     sleep 300
     a=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
-    if [ "${a:-99}" -lt 14 ]; then
+    if [ "${a:-99}" -lt 20 ]; then
       echo "REAP avail=${a}G → 清理 symbols / nativetest 副产物"
       du -xsh out/*/linux-x86/nativetest* out/target/product/*/symbols out/soong/.intermediates/*/symbols 2>/dev/null | tail -5
       rm -rf out/target/product/*/symbols out/host/linux-x86/nativetest* out/host/linux-x86/test-suites 2>/dev/null
