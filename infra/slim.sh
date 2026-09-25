@@ -26,4 +26,12 @@ for d in "$BASE"/clang-r*; do
 done
 echo "== 清理后 =="
 du -sh "$BASE" 2>/dev/null
+
+# 主线模块的预编译 SDK：我们从 packages/modules 源码编，这些快照只是给「用快照构建」的产物用。
+# 24 个仓、十几个 G。老存档里可能还带着它们，所以这里也删一次（与 cull.xml 同效，可重复执行）。
+if [ -d prebuilts/module_sdk ]; then
+  echo "== 删 prebuilts/module_sdk（$(du -sh prebuilts/module_sdk 2>/dev/null | cut -f1)）"
+  rm -rf prebuilts/module_sdk
+fi
+
 df -h / | tail -1

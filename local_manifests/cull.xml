@@ -1,52 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  磁盘裁剪清单：hosted runner 只有 ~108G 可用，而 ovaltine 用不到的项目实测能吃掉几十 G
-  （run 36167028022：同步 12 分钟 avail 就从 108G 掉到 4G）。这些在 sync 之前就从 manifest
-  摘掉，连下载都省。清单由 .fetch/cullpaths.txt 对着 default.xml 生成，44 项名字逐个命中过。
-  判据：只删与本机型产品无关的东西；abi-dumps / build-tools / clang / jdk / go / misc
-  这类构建链自己要用的一个不动。
--->
-<manifest>
   <remove-project name="platform/cts" /> <!-- cts -->
-  <remove-project name="kernel/tests" /> <!-- kernel/tests -->
-  <remove-project name="kernel/prebuilts/6.1/arm64" /> <!-- kernel/prebuilts/6.1/arm64 -->
-  <remove-project name="kernel/prebuilts/6.1/x86-64" /> <!-- kernel/prebuilts/6.1/x86_64 -->
-  <remove-project name="kernel/prebuilts/6.6/arm64" /> <!-- kernel/prebuilts/6.6/arm64 -->
-  <remove-project name="kernel/prebuilts/6.6/x86-64" /> <!-- kernel/prebuilts/6.6/x86_64 -->
-  <remove-project name="kernel/prebuilts/6.12/arm64" /> <!-- kernel/prebuilts/6.12/arm64 -->
-  <remove-project name="kernel/prebuilts/6.12/x86-64" /> <!-- kernel/prebuilts/6.12/x86_64 -->
-  <remove-project name="kernel/prebuilts/mainline/arm64" /> <!-- kernel/prebuilts/mainline/arm64 -->
-  <remove-project name="kernel/prebuilts/mainline/x86-64" /> <!-- kernel/prebuilts/mainline/x86_64 -->
-  <remove-project name="kernel/prebuilts/common-modules/trusty/6.6/arm64" /> <!-- kernel/prebuilts/common-modules/trusty/6.6/arm64 -->
-  <remove-project name="kernel/prebuilts/common-modules/trusty/6.12/arm64" /> <!-- kernel/prebuilts/common-modules/trusty/6.12/arm64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.1/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.1/arm64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.1/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.1/x86-64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.6/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.6/arm64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.6/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.6/x86-64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.12/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.12/arm64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.12/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.12/x86-64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/mainline/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/mainline/arm64 -->
-  <remove-project name="kernel/prebuilts/common-modules/virtual-device/mainline/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/mainline/x86-64 -->
-  <remove-project name="platform/prebuilts/android-emulator" /> <!-- prebuilts/android-emulator -->
   <remove-project name="device/generic/arm64" /> <!-- device/generic/arm64 -->
   <remove-project name="device/generic/armv7-a-neon" /> <!-- device/generic/armv7-a-neon -->
   <remove-project name="device/generic/art" /> <!-- device/generic/art -->
+  <remove-project name="LineageOS/android_device_generic_goldfish" /> <!-- device/generic/goldfish -->
   <remove-project name="device/generic/trusty" /> <!-- device/generic/trusty -->
   <remove-project name="device/generic/x86" /> <!-- device/generic/x86 -->
   <remove-project name="device/generic/x86_64" /> <!-- device/generic/x86_64 -->
-  <remove-project name="LineageOS/android_device_generic_goldfish" /> <!-- device/generic/goldfish -->
   <remove-project name="device/google/cuttlefish" /> <!-- device/google/cuttlefish -->
   <remove-project name="device/google/cuttlefish_prebuilts" /> <!-- device/google/cuttlefish_prebuilts -->
   <remove-project name="device/google/cuttlefish_vmm" /> <!-- device/google/cuttlefish_vmm -->
   <remove-project name="device/google/trout" /> <!-- device/google/trout -->
+  <remove-project name="kernel/prebuilts/6.1/arm64" /> <!-- kernel/prebuilts/6.1/arm64 -->
+  <remove-project name="kernel/prebuilts/6.1/x86-64" /> <!-- kernel/prebuilts/6.1/x86_64 -->
+  <remove-project name="kernel/prebuilts/6.12/arm64" /> <!-- kernel/prebuilts/6.12/arm64 -->
+  <remove-project name="kernel/prebuilts/6.12/x86-64" /> <!-- kernel/prebuilts/6.12/x86_64 -->
+  <remove-project name="kernel/prebuilts/6.6/arm64" /> <!-- kernel/prebuilts/6.6/arm64 -->
+  <remove-project name="kernel/prebuilts/6.6/x86-64" /> <!-- kernel/prebuilts/6.6/x86_64 -->
+  <remove-project name="kernel/prebuilts/common-modules/trusty/6.12/arm64" /> <!-- kernel/prebuilts/common-modules/trusty/6.12/arm64 -->
+  <remove-project name="kernel/prebuilts/common-modules/trusty/6.6/arm64" /> <!-- kernel/prebuilts/common-modules/trusty/6.6/arm64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.1/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.1/arm64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.1/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.1/x86-64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.12/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.12/arm64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.12/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.12/x86-64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.6/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.6/arm64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/6.6/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/6.6/x86-64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/mainline/arm64" /> <!-- kernel/prebuilts/common-modules/virtual-device/mainline/arm64 -->
+  <remove-project name="kernel/prebuilts/common-modules/virtual-device/mainline/x86-64" /> <!-- kernel/prebuilts/common-modules/virtual-device/mainline/x86-64 -->
+  <remove-project name="kernel/prebuilts/mainline/arm64" /> <!-- kernel/prebuilts/mainline/arm64 -->
+  <remove-project name="kernel/prebuilts/mainline/x86-64" /> <!-- kernel/prebuilts/mainline/x86_64 -->
+  <remove-project name="kernel/tests" /> <!-- kernel/tests -->
+  <remove-project name="platform/prebuilts/android-emulator" /> <!-- prebuilts/android-emulator -->
   <remove-project name="platform/prebuilts/asuite" /> <!-- prebuilts/asuite -->
-  <remove-project name="platform/prebuilts/cmdline-tools" /> <!-- prebuilts/cmdline-tools -->
-  <remove-project name="platform/prebuilts/devtools" /> <!-- prebuilts/devtools -->
-  <remove-project name="platform/prebuilts/gradle-plugin" /> <!-- prebuilts/gradle-plugin -->
-  <remove-project name="platform/prebuilts/ktlint" /> <!-- prebuilts/ktlint -->
   <remove-project name="platform/prebuilts/checkcolor" /> <!-- prebuilts/checkcolor -->
   <remove-project name="platform/prebuilts/checkstyle" /> <!-- prebuilts/checkstyle -->
   <remove-project name="platform/prebuilts/clang-tools" /> <!-- prebuilts/clang-tools -->
-  <remove-project name="platform/prebuilts/maven_repo/bumptech" /> <!-- prebuilts/maven_repo/bumptech -->
+  <remove-project name="platform/prebuilts/cmdline-tools" /> <!-- prebuilts/cmdline-tools -->
+  <remove-project name="platform/prebuilts/devtools" /> <!-- prebuilts/devtools -->
   <remove-project name="platform/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8" /> <!-- prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8 -->
+  <remove-project name="platform/prebuilts/gradle-plugin" /> <!-- prebuilts/gradle-plugin -->
+  <remove-project name="platform/prebuilts/ktlint" /> <!-- prebuilts/ktlint -->
+  <remove-project name="platform/prebuilts/maven_repo/bumptech" /> <!-- prebuilts/maven_repo/bumptech -->
+  <remove-project name="platform/prebuilts/module_sdk/AdServices" /> <!-- prebuilts/module_sdk/AdServices -->
+  <remove-project name="platform/prebuilts/module_sdk/AppSearch" /> <!-- prebuilts/module_sdk/AppSearch -->
+  <remove-project name="platform/prebuilts/module_sdk/Bluetooth" /> <!-- prebuilts/module_sdk/Bluetooth -->
+  <remove-project name="platform/prebuilts/module_sdk/ConfigInfrastructure" /> <!-- prebuilts/module_sdk/ConfigInfrastructure -->
+  <remove-project name="platform/prebuilts/module_sdk/Connectivity" /> <!-- prebuilts/module_sdk/Connectivity -->
+  <remove-project name="platform/prebuilts/module_sdk/CrashRecovery" /> <!-- prebuilts/module_sdk/CrashRecovery -->
+  <remove-project name="platform/prebuilts/module_sdk/DeviceLock" /> <!-- prebuilts/module_sdk/DeviceLock -->
+  <remove-project name="platform/prebuilts/module_sdk/HealthFitness" /> <!-- prebuilts/module_sdk/HealthFitness -->
+  <remove-project name="platform/prebuilts/module_sdk/IPsec" /> <!-- prebuilts/module_sdk/IPsec -->
+  <remove-project name="platform/prebuilts/module_sdk/Media" /> <!-- prebuilts/module_sdk/Media -->
+  <remove-project name="platform/prebuilts/module_sdk/MediaProvider" /> <!-- prebuilts/module_sdk/MediaProvider -->
+  <remove-project name="platform/prebuilts/module_sdk/Nfc" /> <!-- prebuilts/module_sdk/Nfc -->
+  <remove-project name="platform/prebuilts/module_sdk/OnDevicePersonalization" /> <!-- prebuilts/module_sdk/OnDevicePersonalization -->
+  <remove-project name="platform/prebuilts/module_sdk/Permission" /> <!-- prebuilts/module_sdk/Permission -->
+  <remove-project name="platform/prebuilts/module_sdk/Profiling" /> <!-- prebuilts/module_sdk/Profiling -->
+  <remove-project name="platform/prebuilts/module_sdk/RemoteKeyProvisioning" /> <!-- prebuilts/module_sdk/RemoteKeyProvisioning -->
+  <remove-project name="platform/prebuilts/module_sdk/Scheduling" /> <!-- prebuilts/module_sdk/Scheduling -->
+  <remove-project name="platform/prebuilts/module_sdk/SdkExtensions" /> <!-- prebuilts/module_sdk/SdkExtensions -->
+  <remove-project name="platform/prebuilts/module_sdk/StatsD" /> <!-- prebuilts/module_sdk/StatsD -->
+  <remove-project name="platform/prebuilts/module_sdk/Telephony" /> <!-- prebuilts/module_sdk/Telephony -->
+  <remove-project name="platform/prebuilts/module_sdk/Uwb" /> <!-- prebuilts/module_sdk/Uwb -->
+  <remove-project name="platform/prebuilts/module_sdk/Wifi" /> <!-- prebuilts/module_sdk/Wifi -->
+  <remove-project name="platform/prebuilts/module_sdk/art" /> <!-- prebuilts/module_sdk/art -->
+  <remove-project name="platform/prebuilts/module_sdk/conscrypt" /> <!-- prebuilts/module_sdk/conscrypt -->
 </manifest>
