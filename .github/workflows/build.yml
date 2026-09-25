@@ -68,7 +68,7 @@ jobs:
                    lz4 zstd swig rsync file xmlstarlet device-tree-compiler \
                    python3 python3-pip python3-mako python3-protobuf python3-setuptools \
                    python3-yaml python3-lxml openjdk-17-jdk-headless srecord schedtool \
-                   libgl1-mesa-dev x11proto-core-dev; do
+                   libgl1-mesa-dev x11proto-core-dev \n                   bc libssl-dev libelf-dev dwarves m4 elfutils libxml2-utils uuid-dev cpio kmod xz-utils; do
             $SUDO apt-get install -y --no-install-recommends "$p" >/dev/null 2>&1 || echo "跳过不存在的包: $p"
           done
           $SUDO curl -sL -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
