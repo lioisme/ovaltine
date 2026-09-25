@@ -36,7 +36,7 @@ concurrency:
 env:
   DEVICE: ovaltine
   HANDOFF_TAG: ci-handoff
-  RESERVE_MIN: "45"        # 留给打包上传的时间
+  RESERVE_MIN: "60"        # 留给 tree/out 打包上传的时间
 
 jobs:
   rom:
