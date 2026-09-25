@@ -22,9 +22,28 @@ fi
 [ "$lunch_ok" = 1 ] || { echo "lunch lineage_${DEV}…${VARIANT} 失败"; exit 1; }
 echo "== lunch 目标: ${TARGET_PRODUCT:-?} / ${TARGET_RELEASE:-默认} / $VARIANT"
 
-m dist
+# 磁盘吃紧时只出「可刷镜像」而不是整包 dist：out/ 能少 10-20G（不产 target_files/otatools/symbols 包）
+# 注意用 ${VAR-def}：workflow 传空串就是要走默认目标 droid，不能被当成「没设」
+TARGETS="${BUILD_TARGETS-dist}"
+# 边编边回收：symbols/nativetest 是纯副产物，刷机用不到；ninja 只在 dist 打包时才要它们
+reaper() {
+  while :; do
+    sleep 300
+    a=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+    if [ "${a:-99}" -lt 14 ]; then
+      echo "REAP avail=${a}G → 清理 symbols / nativetest 副产物"
+      du -xsh out/*/linux-x86/nativetest* out/target/product/*/symbols out/soong/.intermediates/*/symbols 2>/dev/null | tail -5
+      rm -rf out/target/product/*/symbols out/host/linux-x86/nativetest* out/host/linux-x86/test-suites 2>/dev/null
+      df -h / | tail -1
+    fi
+  done
+}
+reaper & REAP=$!
+trap 'kill $REAP 2>/dev/null' EXIT
+
+m $TARGETS
 rc=$?
-echo "== m dist 退出码 $rc"
+echo "== m $TARGETS 退出码 $rc"
 
 echo "== 产物 =="
 find out -maxdepth 3 -type f \( -name 'lineage*.zip' -o -name '*ota*.zip' -o -name '*target_files*.zip' \) \

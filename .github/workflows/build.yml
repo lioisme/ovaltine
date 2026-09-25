@@ -25,6 +25,11 @@ on:
         description: "忽略续建存档，强制全量重新同步"
         type: boolean
         default: false
+      targets:
+        description: "构建目标（dist=可刷 zip + target_files；droid=只出分区镜像，省 10-20G 磁盘）"
+        type: choice
+        default: dist
+        options: [dist, droid]
 
 permissions:
   contents: write
@@ -142,6 +147,8 @@ jobs:
 
       - name: 编译（按剩余预算限时，到点优雅收尾）
         id: build
+        env:
+          BUILD_TARGETS: ${{ inputs.targets == 'droid' && '' || 'dist' }}
         run: |
           set +e
           now=$(date +%s)
@@ -189,6 +196,7 @@ jobs:
           BUILD_OUTCOME: ${{ steps.build.outcome }}
           BRANCH: ${{ inputs.branch }}
           VARIANT: ${{ inputs.variant }}
+          TARGETS: ${{ inputs.targets }}
           NOTE: ${{ steps.verdict.outputs.done == 'true' && 'rom-ready' || 'partial' }}
         run: bash ci/infra/handoff.sh save-out
 

@@ -85,6 +85,7 @@ write_state() {  # $1 = tree_parts  $2 = out_parts
   "done": ${DONE:-false},
   "branch": "${BRANCH:-}",
   "variant": "${VARIANT:-}",
+  "targets": "${TARGETS:-dist}",
   "tree_parts": $tp,
   "out_parts": $op,
   "sync_secs": "${SYNC_SECS:-}",

@@ -34,7 +34,8 @@ jobs:
           f() { sed -n "s/.*\"$1\": *\"\{0,1\}\([^\",}]*\)\"\{0,1\}.*/\1/p" state.json | head -1; }
           go() { echo "go=true" >> "$GITHUB_OUTPUT"
                  echo "nxt_branch=${1:-lineage-23.2}" >> "$GITHUB_OUTPUT"
-                 echo "nxt_variant=${2:-userdebug}" >> "$GITHUB_OUTPUT"; }
+                 echo "nxt_variant=${2:-userdebug}" >> "$GITHUB_OUTPUT"
+                 echo "nxt_targets=${3:-dist}" >> "$GITHUB_OUTPUT"; }
 
           # 连续两轮跑不完（同步/取回失败）就是结构性问题，别再往下烧机时
           # 只看「从最近一次往前的连续失败数」，否则我手工取消的旧轮会永久污染这个计数
@@ -57,7 +58,7 @@ jobs:
           elif [ "$cyc" -ge "$MAX_CYCLES" ]; then
             echo "已到轮数上限 $MAX_CYCLES，停下等人工判断"
           else
-            go "$branch" "$variant"
+            go "$branch" "$variant" "$(f targets)"
           fi
 
       - name: 触发下一轮 build-rom
@@ -67,5 +68,5 @@ jobs:
         run: |
           gh workflow run build.yml --ref "$GITHUB_REF_NAME" \
             -f branch="${{ steps.st.outputs.nxt_branch }}" \
-            -f variant="${{ steps.st.outputs.nxt_variant }}"
+            -f variant="${{ steps.st.outputs.nxt_variant }}" \n            -f targets="${{ steps.st.outputs.nxt_targets }}"
           echo "已排队下一轮（${{ steps.st.outputs.nxt_branch }} / ${{ steps.st.outputs.nxt_variant }}）"
