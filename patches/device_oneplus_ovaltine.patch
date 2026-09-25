@@ -1,0 +1,51 @@
+--- a/lineage_ovaltine.mk
++++ b/lineage_ovaltine.mk
+@@ -19,14 +19,14 @@
+ PRODUCT_DEVICE := ovaltine
+ PRODUCT_MANUFACTURER := OnePlus
+ PRODUCT_BRAND := OnePlus
+-PRODUCT_MODEL := CPH2415
++PRODUCT_MODEL := PGP110
+ 
+ PRODUCT_GMS_CLIENTID_BASE := android-oneplus
+ 
+ PRODUCT_BUILD_PROP_OVERRIDES += \
+     BuildDesc="qssi-user 15 AP3A.240617.008 1763899742269 release-keys" \
+-    BuildFingerprint=OnePlus/CPH2415/OP5552L1:15/AP3A.240617.008/S.2122e42-d896-1:user/release-keys \
+-    DeviceName=OP5552L1 \
+-    DeviceProduct=CPH2415 \
+-    SystemDevice=OP5552L1 \
+-    SystemName=CPH2415
++    BuildFingerprint=OnePlus/PGP110/OP5551L1:15/AP3A.240617.008/S.2122e42-d896-1:user/release-keys \
++    DeviceName=OP5551L1 \
++    DeviceProduct=PGP110 \
++    SystemDevice=OP5551L1 \
++    SystemName=PGP110
+--- a/vendor.prop
++++ b/vendor.prop
+@@ -1,9 +1,9 @@
+ # Bluetooth
+-bluetooth.device.default_name=OnePlus 10T 5G
++bluetooth.device.default_name=OnePlus Ace Pro
+ 
+ # Graphics
+ ro.surface_flinger.set_idle_timer_ms=4000
+ ro.surface_flinger.set_touch_timer_ms=4000
+ 
+ # USB
+-vendor.usb.product_string=OnePlus 10T 5G
++vendor.usb.product_string=OnePlus Ace Pro
+--- a/proprietary-files.txt
++++ b/proprietary-files.txt
+@@ -1372,9 +1372,9 @@
+ vendor/etc/ltm_config_boe_rm692e5_dsc_cmd_mode_panel.xml
+ 
+ # Fingerprint (service) - from salami 11.F.68
+-odm/bin/hw/vendor.oplus.hardware.biometrics.fingerprint@2.1-service_uff|0ded362198f669f38239f52c3bc526eaf55aca12|0ded362198f669f38239f52c3bc526eaf55aca12
++odm/bin/hw/vendor.oplus.hardware.biometrics.fingerprint@2.1-service_uff
+ odm/etc/init/vendor.oplus.hardware.biometrics.fingerprint@2.1-service.rc|c9f6b44fe71d532f87475d3c6a601bd2b14fb2f8
+-odm/etc/vintf/manifest/manifest_oplus_fingerprint_aidl_v2.xml|9dd836cdef719daf48d5bce7ff1fa5cfeeba78f2
++odm/etc/vintf/manifest/manifest_oplus_fingerprint_aidl.xml
+ 
+ # Fingerprint firmware
+ odm/vendor/firmware/uff_jv.b00

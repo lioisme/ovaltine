@@ -21,6 +21,10 @@ on:
       repopick:
         description: "额外 gerrit topic（留空则不挑）"
         default: ""
+      use_cn_patches:
+        description: "应用 patches/ 下的 PGP110 补丁（需先自提国行 blob）"
+        type: boolean
+        default: false
 
 env:
   DEVICE: ovaltine
@@ -83,12 +87,14 @@ jobs:
           du -sh .repo; df -h /
 
       - name: 应用本地补丁（文件名用下划线代替路径分隔，如 device_oneplus_ovaltine.patch）
+        if: ${{ inputs.use_cn_patches }}
         run: |
           shopt -s nullglob
           for f in ci/patches/*.patch; do
             p="$(basename "$f" .patch | tr '_' '/')"
-            echo "== git -C $p am $(basename "$f")"
-            git -C "$p" am --3way --whitespace=nowarn "$GITHUB_WORKSPACE/$f"
+            echo "== git -C $p apply $(basename "$f")"
+            git -C "$p" apply -p1 --whitespace=nowarn "$GITHUB_WORKSPACE/$f"
+            git -C "$p" diff --stat
           done
 
       - name: 挑 gerrit 补丁（可选）
