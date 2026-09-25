@@ -141,10 +141,12 @@ jobs:
         run: |
           set -e
           mkdir -p artifacts
-          find "out/target/product/$DEVICE" -maxdepth 1 \( -name '*.zip' -o -name '*.img' \) \
-               -exec cp -v {} artifacts/ \;
-          (cd artifacts && sha256sum * > SHA256SUMS && cat SHA256SUMS)
-          test -n "$(ls -A artifacts)"
+          # 只收 zip（ROM/OTA/target_files），不收 super.img 这类几 GB 的裸镜像
+          find out -maxdepth 3 -type f \( -name 'lineage*.zip' -o -name '*ota*.zip' -o -name '*target_files*.zip' \) \
+               -exec cp -v {} artifacts/ \; 2>/dev/null || true
+          ls -lh artifacts || true
+          ( cd artifacts && sha256sum *.zip > SHA256SUMS && cat SHA256SUMS )
+          test "$(ls -A artifacts/*.zip 2>/dev/null | head -1)" || { echo "没有生成 zip，见上一步 find 输出"; exit 1; }
 
       - name: 上传 ROM
         uses: actions/upload-artifact@v4
