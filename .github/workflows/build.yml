@@ -74,7 +74,7 @@ jobs:
         run: |
           for i in 1 2 3 4 5; do
             echo "=== sync 第 $i 次 ==="
-            repo sync -c --no-tags --no-clone-bundle --optimized-storage --force-sync -j"$(nproc)" && { OK=1; break; }
+            repo sync -c --no-tags --no-clone-bundle --force-sync -j"$(nproc)" && { OK=1; break; }
             [ "$i" = 5 ] && exit 1
             sleep 25
           done
