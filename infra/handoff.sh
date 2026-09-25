@@ -11,7 +11,7 @@ set -uo pipefail
 
 TAG="${HANDOFF_TAG:-ci-handoff}"
 ROOT="${HANDOFF_ROOT:-$PWD}"
-SPLIT="${HANDOFF_SPLIT:-3500m}"
+SPLIT="${HANDOFF_SPLIT:-1500m}"   # 单个 Release 资产有大小上限，切片保守取 1.5G
 EXCLUDES=(--exclude=./out --exclude=./ci --exclude=./artifacts --exclude=./state.json
           --exclude=./.ci-tmp --exclude=./rom.sha256 --exclude=./chain.log)
 cd "$ROOT"
