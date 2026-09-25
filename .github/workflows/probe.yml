@@ -1,0 +1,21 @@
+name: probe-runner
+
+on: { workflow_dispatch: {} }
+
+jobs:
+  probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-16core]
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - run: |
+          echo "label=${{ matrix.os }}"
+          nproc; free -g | head -2
+          df -h / "$RUNNER_TEMP" /mnt 2>/dev/null
+          sudo swapoff -a 2>/dev/null; free -g | head -2
+          cat /proc/cpuinfo | grep -m1 "model name"
+          java -version 2>&1 | head -1; python3 -V; git --version
