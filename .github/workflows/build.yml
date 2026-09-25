@@ -93,7 +93,10 @@ jobs:
           mkdir -p .repo/local_manifests
           sed -e "s#@PLATFORM@#$PLAT#g" -e "s#@COMMUNITY@#$COMMUNITY#g" \
               ci/local_manifests/ovaltine.xml > .repo/local_manifests/ovaltine.xml
+          # 磁盘裁剪：CTS/预编译内核/模拟器/cuttlefish 等与本机型无关的几十 G 直接不同步
+          cp ci/local_manifests/cull.xml .repo/local_manifests/cull.xml
           grep -E "remote name=|revision=" .repo/local_manifests/ovaltine.xml
+          grep -c remove-project .repo/local_manifests/cull.xml
           git config --global user.email ci@invalid && git config --global user.name ci
           repo init -u https://github.com/LineageOS/android -b "$PLAT" --depth=1 --git-lfs
           # 同步最多占到「总预算 - 收尾 - 编译保底 90 分钟」

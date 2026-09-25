@@ -11,9 +11,9 @@ SYNC_JOBS="${SYNC_JOBS:-16}"
 BATCHES="${BATCHES:-12}"
 SOFT="${SYNC_SOFT_SECS:-4500}"
 HARD="${SYNC_HARD_SECS:-13200}"
-# 实测（run 36162392208）：单发同步 6 分钟就吃掉 72G（.repo 22G + 工作树 50G），
-# 对象树与工作树同时存在 → hosted 的 ~108G 必然爆盘。所以默认走分批（LOW_DISK_G 设很大）。
-LOW_DISK_G="${LOW_DISK_G:-999}"
+# 实测（run 36162392208）：单发同步 6 分钟吃 72G（.repo 22G + 工作树 50G），对象库与工作树
+# 同时存在 → hosted 的 ~108G 必爆。故 hosted 一律分批；磁盘宽裕（≥200G 的 self-hosted）才走单发。
+LOW_DISK_G="${LOW_DISK_G:-200}"
 LFS_TREES="vendor/oneplus/ovaltine vendor/oneplus/sm8450-common"
 
 avail_g() { df --output=avail -BG / | tail -1 | tr -dc '0-9'; }
@@ -51,6 +51,10 @@ batched_sync() {  # 分批：每批结束立刻回收对象库
     done
     [ "$ok" = 1 ] || { echo "批 $(basename "$b") 同步失败"; return 1; }
     rm -rf .repo/project-objects/*
+    # clang 一落地就把没用到的版本删掉：它是单一最肥的目录（十几个 clang-rNNN）
+    for s in ci/infra/slim.sh infra/slim.sh; do
+      [ -f "$s" ] && { bash "$s" | tail -4; break; }
+    done
     echo "$(basename "$b") 完成，avail=$(avail_g)G 已用=$(( $(date +%s) - start ))s"
   done
 }
