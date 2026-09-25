@@ -68,7 +68,7 @@ batched_sync() {  # 分批：每批结束立刻回收对象库
       [ -f "$s" ] && { bash "$s" | tail -4; break; }
     done
     echo "$(basename "$b") 完成，avail=$(avail_g)G 已用=$(( $(date +%s) - start ))s"
-    sleep 60   # googlesource 会按 IP 限流（实测第 9 批起整批 HTTP 429），批间留口气
+    sleep 20   # googlesource 按 IP 限流（实测整批 HTTP 429），批间留口气；40 批就别 each 一分钟了
   done
 }
 
