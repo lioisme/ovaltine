@@ -9,6 +9,8 @@ M=".repo/manifest.xml"
 total=0 miss=0 misslist=""
 while read -r p; do
   [ -n "$p" ] || continue
+  # slim.sh 会特意删掉主线模块的预编译 SDK（我们从源码编），别把它算成缺件
+  case "$p" in prebuilts/module_sdk/*) continue ;; esac
   total=$((total+1))
   if [ ! -d "$p" ] || [ -z "$(ls -A "$p" 2>/dev/null)" ]; then
     miss=$((miss+1)); [ $miss -le 25 ] && misslist="$misslist $p"
