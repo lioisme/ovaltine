@@ -4,7 +4,7 @@ on: { workflow_dispatch: {} }
 
 jobs:
   probe:
-    runs-on: ubuntu-24.04-16core
+    runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
       - name: 容量实测

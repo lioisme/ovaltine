@@ -12,7 +12,7 @@ on:
         description: Runner 规格
         type: choice
         default: ubuntu-24.04
-        options: [ubuntu-24.04, ubuntu-24.04-8core, ubuntu-24.04-16core]
+        options: [ubuntu-24.04, self-hosted]
       variant:
         description: "构建类型"
         type: choice
@@ -45,20 +45,21 @@ jobs:
 
       - name: 装依赖并腾空磁盘
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache "$AGENT_TOOLSDIRECTORY" || true
-          sudo apt-get update -y
+          # root 或有 sudo 时才提权；self-hosted runner 可能已是 root 或已预装依赖
+          SUDO=; if [ "$(id -u)" != 0 ]; then command -v sudo >/dev/null && SUDO=sudo; fi
+          $SUDO rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
+          $SUDO apt-get update -y || echo "apt update 失败（可能非 Ubuntu runner）"
           # 逐包安装：个别包名在新版镜像里不存在时不整体失败
           for p in git git-lfs curl wget unzip zip bison flex build-essential g++ gawk bzip2 \
                    lz4 zstd swig ccache rsync file xmlstarlet libxml2-utils device-tree-compiler \
                    python3 python3-pip python3-mako python3-protobuf python3-setuptools \
                    python3-yaml python3-lxml openjdk-17-jdk-headless srecord schedtool \
                    libgl1-mesa-dev x11proto-core-dev; do
-            sudo apt-get install -y --no-install-recommends "$p" >/dev/null 2>&1 || echo "跳过不存在的包: $p"
+            $SUDO apt-get install -y --no-install-recommends "$p" >/dev/null 2>&1 || echo "跳过不存在的包: $p"
           done
-          sudo curl -sL -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
-          sudo chmod a+x /usr/local/bin/repo
-          cp ci/build.sh ./build.sh; chmod +x build.sh
-          df -h /
+          $SUDO curl -sL -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
+          $SUDO chmod a+x /usr/local/bin/repo
+          nproc; free -g | head -2; df -h /
 
       - name: 生成 local_manifest
         run: |
@@ -120,9 +121,9 @@ jobs:
 
       - name: 编译
         run: |
-          ccache -M 25G; ccache -z
-          ./build.sh "${{ inputs.variant }}"
-          ccache -s | head -8
+          ccache -M 25G 2>/dev/null || true; ccache -z 2>/dev/null || true
+          bash ci/build.sh "${{ inputs.variant }}"
+          ccache -s 2>/dev/null | head -8
           df -h /
 
       - name: 收集产物
