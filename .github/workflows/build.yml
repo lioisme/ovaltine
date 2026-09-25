@@ -74,22 +74,33 @@ jobs:
       - name: repo init
         run: |
           git config --global user.email ci@invalid && git config --global user.name ci
+          # --partial-clone：blob 按需拉取，显著降低 .repo 峰值占用
           repo init -u https://github.com/LineageOS/android -b "${{ inputs.branch }}" \
-               --depth=1 --git-lfs
+               --depth=1 --git-lfs --partial-clone
           df -h /
 
-      - name: repo sync（最多 5 次重试）
-        timeout-minutes: 180
+      - name: repo sync（带磁盘观测，失败自动重试）
+        timeout-minutes: 200
         shell: bash
+        env:
+          GIT_LFS_SKIP_SMUDGE: "1"        # 先不落 LFS 内容，稍后只对 blob 树拉
         run: |
+          ( while :; do sleep 180; printf 'OBS %s  .repo=%s  avail=%sG\n' "$(date -u +%H:%M:%S)" \
+              "$(du -sh .repo 2>/dev/null | cut -f1)" "$(df --output=avail -BG / | tail -1 | tr -dc 0-9)"; done ) &
+          MON=$!
           for i in 1 2 3 4 5; do
             echo "=== sync 第 $i 次 ==="
-            repo sync -c --no-tags -j16 --force-sync && { OK=1; break; }
-            [ "$i" = 5 ] && exit 1
+            if repo sync -c --no-tags -j16 --force-sync; then OK=1; break; fi
+            echo "第 $i 次失败；当前磁盘："; df -h /; du -sh .repo 2>/dev/null
+            [ "$i" = 5 ] && { kill $MON 2>/dev/null; exit 1; }
             sleep 25
           done
+          kill $MON 2>/dev/null
           [ "${OK:-0}" = 1 ]
-          repo forall -c 'git lfs pull' || true
+          # 只对承载固件镜像的 blob 树取 LFS 内容（约 360MB）
+          for t in vendor/oneplus/ovaltine vendor/oneplus/sm8450-common; do
+            [ -d "$t" ] && git -C "$t" lfs pull 2>/dev/null || true
+          done
           du -sh .repo; df -h /
 
       - name: 空间不足时回收 .repo 对象库
