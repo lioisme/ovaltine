@@ -37,8 +37,10 @@ jobs:
                  echo "nxt_variant=${2:-userdebug}" >> "$GITHUB_OUTPUT"; }
 
           # 连续两轮跑不完（同步/取回失败）就是结构性问题，别再往下烧机时
-          bad=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?event=workflow_dispatch&per_page=3" \
-                --jq '[.workflow_runs[] | select(.conclusion=="failure" or .conclusion=="cancelled")] | length')
+          # 只看「从最近一次往前的连续失败数」，否则我手工取消的旧轮会永久污染这个计数
+          bad=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?event=workflow_dispatch&per_page=15" \
+                 --jq '[.workflow_runs[] | select(.status=="completed") | .conclusion] | join(",")' |
+                awk -F, '{c=0; for(i=1;i<=NF;i++){ if($i=="failure"||$i=="cancelled") c++; else break } print c}')
           if [ "${bad:-9}" -ge 2 ]; then echo "近 3 轮里有 ${bad} 轮失败/取消，停止接力等人工"; exit 0; fi
 
           if ! gh release download "$HANDOFF_TAG" -p state.json -D . --clobber; then
