@@ -32,3 +32,14 @@ repo forall -c 'git lfs pull'
 | `local_manifests/ovaltine.xml` | 设备树/内核/blob 清单模板（`@PLATFORM@`/`@COMMUNITY@` 占位） |
 | `build.sh` | 构建入口（限并行度与 JVM 堆，避免 runner OOM） |
 | `资料清单与缺口分析.md` | 资料分层清单 + 缺口台账 G1–G15 + 底包/dts/Actions 判定 |
+
+## 实测的算力结论（2026-09-25）
+
+| 候选 | 实测结果 |
+|---|---|
+| 手机 Termux + Ubuntu（arm64） | AOSP 只有 `prebuilts/clang/host/linux-x86`，arm64 主机无 host 预编译 → **不能编 ROM**（可以解包、算哈希、比对 blob，已在用） |
+| Actions `ubuntu-24.04`（4 核/16GB/150G） | 浅同步阶段就 `No space left on device`（4 次同因失败）→ **装不下** |
+| Actions `ubuntu-24.04-16core` | 一直 `queued` 不启动 → 本账户无 larger-runner 额度 |
+
+所以出包需要一个 **x86_64 Linux + ≥250GB** 的执行体：注册成 self-hosted runner（Actions 仍是编排与发布），
+或开通 larger-runner。仓库与工作流已就绪，换 runner 标签即可跑。
