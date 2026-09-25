@@ -1,0 +1,109 @@
+name: build-rom
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "LineageOS 平台分支"
+        type: choice
+        default: lineage-23.2
+        options: [lineage-21.0, lineage-22.2, lineage-23.2]
+      runner:
+        description: Runner 规格
+        type: choice
+        default: ubuntu-24.04
+        options: [ubuntu-24.04, ubuntu-24.04-8core, ubuntu-24.04-16core]
+      variant:
+        description: "构建类型"
+        type: choice
+        default: userdebug
+        options: [userdebug, eng]
+      repopick:
+        description: "额外 gerrit topic（留空则不挑）"
+        default: ""
+
+env:
+  DEVICE: ovaltine
+
+jobs:
+  rom:
+    name: ${{ inputs.branch }} / ${{ inputs.variant }}
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 540
+    steps:
+      - name: 取用本仓配置（manifest + 构建脚本）
+        uses: actions/checkout@v4
+        with: { path: ci }
+
+      - name: 装依赖并腾空磁盘
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache "$AGENT_TOOLSDIRECTORY" || true
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends git git-lfs ccache curl wget unzip zip \
+            bison flex build-essential g++ gawk bzip2 lz4 zstd schedtool srecord swig \
+            device-tree-compiler rsync file xmlstarlet libxml2-utils libsdl1.2-dev \
+            libesd0-dev libgl1-mesa-dev x11proto-core-dev python3 python3-pip python3-mako \
+            python3-protobuf python3-setuptools python3-yaml python3-lxml python3-pyyaml \
+            openjdk-17-jdk-headless
+          sudo curl -sL -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
+          sudo chmod a+x /usr/local/bin/repo
+          cp ci/build.sh ./build.sh; chmod +x build.sh
+          df -h /
+
+      - name: 生成 local_manifest
+        run: |
+          set -e
+          PLAT="${{ inputs.branch }}"
+          COMMUNITY="$(printf '%s' "$PLAT" | sed 's/\.0$//')"
+          mkdir -p .repo/local_manifests
+          sed -e "s#@PLATFORM@#$PLAT#g" -e "s#@COMMUNITY@#$COMMUNITY#g" \
+              ci/local_manifests/ovaltine.xml > .repo/local_manifests/ovaltine.xml
+          grep -E "remote name=|revision=" .repo/local_manifests/ovaltine.xml
+
+      - name: repo init
+        run: |
+          git config --global user.email ci@invalid && git config --global user.name ci
+          repo init -u https://github.com/LineageOS/android -b "${{ inputs.branch }}" \
+               --depth=1 --git-lfs
+          df -h /
+
+      - name: repo sync（最多 5 次重试）
+        shell: bash
+        run: |
+          for i in 1 2 3 4 5; do
+            echo "=== sync 第 $i 次 ==="
+            repo sync -c --no-tags --no-clone-bundle --optimized-storage --force-sync -j"$(nproc)" && { OK=1; break; }
+            [ "$i" = 5 ] && exit 1
+            sleep 25
+          done
+          [ "${OK:-0}" = 1 ]
+          repo forall -c 'git lfs pull' || true
+          du -sh .repo; df -h /
+
+      - name: 挑 gerrit 补丁（可选）
+        if: ${{ inputs.repopick != '' }}
+        run: repopick -t "${{ inputs.repopick }}"
+
+      - name: 编译
+        run: |
+          ccache -M 25G; ccache -z
+          ./build.sh "${{ inputs.variant }}"
+          ccache -s | head -8
+          df -h /
+
+      - name: 收集产物
+        run: |
+          set -e
+          mkdir -p artifacts
+          find "out/target/product/$DEVICE" -maxdepth 1 \( -name '*.zip' -o -name '*.img' \) \
+               -exec cp -v {} artifacts/ \;
+          (cd artifacts && sha256sum * > SHA256SUMS && cat SHA256SUMS)
+          test -n "$(ls -A artifacts)"
+
+      - name: 上传 ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: ovaltine-${{ inputs.branch }}-${{ inputs.variant }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,6 @@
+# 资料与镜像仓，不入库的内容：
+sources/
+.fetch/
+*.zip
+out/
+*.log

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  一加 Ace Pro / OnePlus 10T (ovaltine) — LineageOS local_manifest 模板
+  占位符由 .github/workflows/build.yml 替换：
+    @PLATFORM@   LineageOS 平台分支，如 lineage-21.0 / lineage-22.2 / lineage-23.2
+    @COMMUNITY@  社区分支（= @PLATFORM@ 去掉尾部 .0），如 lineage-21 / lineage-23.2
+  手工使用：
+    sed -e 's/@PLATFORM@/lineage-23.2/g' -e 's/@COMMUNITY@/lineage-23.2/g' \
+        local_manifests/ovaltine.xml > .repo/local_manifests/ovaltine.xml
+
+  注：LineageOS 的 default.xml 与 snippets/lineage.xml 里没有 device/oneplus/*、
+  hardware/oplus、vendor/extra（官方靠 breakfast 动态补，unofficial 机型不适用），
+  所以这里全部自行声明，路径不与默认 manifest 冲突。vendor blob 在 GitLab。
+-->
+<manifest>
+  <remote name="lod"    fetch="https://github.com/lineage-ovaltine-dev" revision="refs/heads/@COMMUNITY@" />
+  <remote name="lod-gl" fetch="https://gitlab.com/lineage-ovaltine-dev/proprietary_vendor_oneplus" revision="refs/heads/@COMMUNITY@" />
+  <remote name="lg"     fetch="https://github.com/" revision="refs/heads/@COMMUNITY@" />
+
+  <!-- 设备树 -->
+  <project name="android_device_oneplus_ovaltine"      path="device/oneplus/ovaltine" remote="lod" />
+  <project name="android_device_oneplus_sm8450-common" path="device/oneplus/sm8450-common" remote="lod" />
+
+  <!-- 内核：GKI 5.10 common + DLKM + DTB/DTBO -->
+  <project name="android_kernel_oneplus_sm8450"             path="kernel/oneplus/sm8450" remote="lod" />
+  <project name="android_kernel_oneplus_sm8450-devicetrees" path="kernel/oneplus/sm8450-devicetrees" remote="lod" />
+  <project name="android_kernel_oneplus_sm8450-modules"     path="kernel/oneplus/sm8450-modules" remote="lod" />
+
+  <!-- 闭源 blob（radio/ 目录含 24 个固件镜像；abl/xbl/xbl_config 为 OOS13 pin 版） -->
+  <project name="ovaltine"      path="vendor/oneplus/ovaltine" remote="lod-gl" />
+  <project name="sm8450-common" path="vendor/oneplus/sm8450-common" remote="lod-gl" />
+
+  <!-- 一加/OPPO 专用 HAL 与额外资源 -->
+  <project name="LineageOS/android_hardware_oplus" path="hardware/oplus" remote="lg" />
+  <project name="Luk1337/android_vendor_extra"     path="vendor/extra" remote="lg" revision="refs/heads/@PLATFORM@" />
+</manifest>
