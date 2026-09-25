@@ -25,6 +25,10 @@ on:
         description: "应用 patches/ 下的 PGP110 补丁（需先自提国行 blob）"
         type: boolean
         default: false
+      prune_repo:
+        description: "同步后强制清理 .repo 对象库（省磁盘）"
+        type: boolean
+        default: false
 
 env:
   DEVICE: ovaltine
@@ -86,6 +90,18 @@ jobs:
           [ "${OK:-0}" = 1 ]
           repo forall -c 'git lfs pull' || true
           du -sh .repo; df -h /
+
+      - name: 空间不足时回收 .repo 对象库
+        run: |
+          AVAIL=$(df --output=avail -BG / | tail -1 | tr -dc '0-9')
+          echo "根盘可用 ${AVAIL}G（LineageOS 浅同步约 60-80G，out/ 还要 40-60G）"
+          if [ "${{ inputs.prune_repo }}" = "true" ] || [ "$AVAIL" -lt 70 ]; then
+            echo "== 删除 .repo 里的 git 对象库（编译阶段不再需要 git 历史）"
+            du -sh .repo || true
+            find .repo -maxdepth 3 -type d -name 'project-objects' -prune -exec rm -rf {} + 2>/dev/null || true
+            find . -mindepth 2 -type d -name '.git' -prune -exec rm -rf {} + 2>/dev/null || true
+            du -sh .repo || true; df -h /
+          fi
 
       - name: 应用本地补丁（文件名用下划线代替路径分隔，如 device_oneplus_ovaltine.patch）
         if: ${{ inputs.use_cn_patches }}
