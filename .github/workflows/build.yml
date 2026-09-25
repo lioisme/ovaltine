@@ -80,6 +80,15 @@ jobs:
           repo forall -c 'git lfs pull' || true
           du -sh .repo; df -h /
 
+      - name: 应用本地补丁（文件名用下划线代替路径分隔，如 device_oneplus_ovaltine.patch）
+        run: |
+          shopt -s nullglob
+          for f in ci/patches/*.patch; do
+            p="$(basename "$f" .patch | tr '_' '/')"
+            echo "== git -C $p am $(basename "$f")"
+            git -C "$p" am --3way --whitespace=nowarn "$GITHUB_WORKSPACE/$f"
+          done
+
       - name: 挑 gerrit 补丁（可选）
         if: ${{ inputs.repopick != '' }}
         run: repopick -t "${{ inputs.repopick }}"
