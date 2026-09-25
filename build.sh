@@ -33,6 +33,8 @@ echo "== lunch 目标: ${TARGET_PRODUCT:-?} / ${TARGET_RELEASE:-默认} / $VARIA
 # 磁盘吃紧时只出「可刷镜像」而不是整包 dist：out/ 能少 10-20G（不产 target_files/otatools/symbols 包）
 # 注意用 ${VAR-def}：workflow 传空串就是要走默认目标 droid，不能被当成「没设」
 TARGETS="${BUILD_TARGETS-dist}"
+# droid = 默认目标（只做到分区镜像，不做 dist 的 target_files/otatools/symbols 打包）
+[ "$TARGETS" = droid ] && TARGETS=""
 # 边编边回收：symbols/nativetest 是纯副产物，刷机用不到；ninja 只在 dist 打包时才要它们
 reaper() {
   while :; do

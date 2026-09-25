@@ -157,7 +157,7 @@ jobs:
       - name: 编译（按剩余预算限时，到点优雅收尾）
         id: build
         env:
-          BUILD_TARGETS: ${{ inputs.targets == 'droid' && '' || 'dist' }}
+          BUILD_TARGETS: ${{ inputs.targets }}
         run: |
           set +e
           now=$(date +%s)
