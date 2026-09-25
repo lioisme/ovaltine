@@ -142,6 +142,7 @@ jobs:
         env:
           BRANCH: ${{ inputs.branch }}
           VARIANT: ${{ inputs.variant }}
+          TARGETS: ${{ inputs.targets }}
           NOTE: tree@sync
         run: bash ci/infra/handoff.sh save-tree
 

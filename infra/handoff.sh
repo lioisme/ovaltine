@@ -69,6 +69,9 @@ pack() {  # $1 = family  $2.. = tar 的路径参数
 # 新分片覆盖同名旧分片之后，把多余的旧高序号删掉（不留没有存档的空窗）
 prune_family() {  # $1 = family  $2 = 新分片数
   local fam="$1" keep="$2" i
+  # keep=0 只可能是「分片还没传完」或 gh 列举失败，绝不能据此把已有分片全删了
+  # （被取消的旧轮里就有过一条僵尸 pack 管道，把 16G 的 tree 分片自己删光）
+  [ "${keep:-0}" -ge 1 ] || { echo "  keep=${keep:-0}，跳过过期分片清理（防误删）"; return 0; }
   for i in $(family_idx "$fam"); do
     [ "$((10#$i))" -ge "$keep" ] || continue
     echo "  删除过期分片 ${fam}.part${i}"

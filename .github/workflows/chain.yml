@@ -49,7 +49,7 @@ jobs:
             exit 0
           fi
           cat state.json
-          done_v="$(f done)"; cyc="$(f cycle)"; branch="$(f branch)"; variant="$(f variant)"
+          done_v="$(f done)"; cyc="$(f cycle)"; branch="$(f branch)"; variant="$(f variant)"; targets="$(f targets)"
           echo "cycle=$cyc done=$done_v branch=$branch variant=$variant"
           if [ "$done_v" = "true" ]; then
             echo "已出包，接力完成"
@@ -58,7 +58,7 @@ jobs:
           elif [ "$cyc" -ge "$MAX_CYCLES" ]; then
             echo "已到轮数上限 $MAX_CYCLES，停下等人工判断"
           else
-            go "$branch" "$variant" "$(f targets)"
+            go "${branch:-lineage-23.2}" "${variant:-userdebug}" "${targets:-dist}"
           fi
 
       - name: 触发下一轮 build-rom
