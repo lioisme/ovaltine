@@ -1,19 +1,27 @@
-name: probe-runner
+name: probe-env
 
-on: { workflow_dispatch: {} }
+# 一次性旁路自检：确认 runner 侧「写 Release 正文」这条观察通道到底通不通。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  probe:
+  p:
+    name: 观察通道自检
     runs-on: ubuntu-24.04
-    timeout-minutes: 8
+    timeout-minutes: 6
     steps:
-      - name: 容量实测
+      - uses: actions/checkout@v4
+        with: { path: ci }
+      - name: 检查脚本与 token 可见性
         run: |
-          echo "nproc=$(nproc)"; free -m | head -2
-          echo "=== 挂载表（看 /mnt 是否是独立盘）==="
-          lsblk -o NAME,SIZE,MOUNTPOINT 2>/dev/null | head -20
-          df -hT / /mnt /tmp /home "$RUNNER_TEMP" 2>/dev/null
-          echo "=== /mnt 写入试验 ==="
-          sudo mkdir -p /mnt/t && sudo dd if=/dev/zero of=/mnt/t/x bs=1M count=512 status=none && ls -l /mnt/t/x && sudo rm -rf /mnt/t
-          echo "=== 现有可释放空间 ==="
-          du -sh /usr/share/dotnet /usr/local/lib/android /opt/gh* /usr/local/share/boost 2>/dev/null
+          ls -l ci/infra/progress.sh
+          env | grep -oE '^(GH[A-Z_]*|GITHUB_[A-Z_]*)' | sort -u
+          echo "GH_REPO=${GH_REPO:-<未设>} GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-<未设>}"
+      - name: 试写 Release 正文
+        run: |
+          bash ci/infra/progress.sh "runner 自检 $(date -u +%H:%M:%SZ)"
+          GH_TOKEN=$GITHUB_TOKEN gh api repos/$GITHUB_REPOSITORY/releases/tags/ci-handoff \
+            --jq '"body=\(.body)  updated=\(.updated_at)"'
