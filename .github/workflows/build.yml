@@ -74,33 +74,38 @@ jobs:
       - name: repo init
         run: |
           git config --global user.email ci@invalid && git config --global user.name ci
-          # --partial-clone：blob 按需拉取，显著降低 .repo 峰值占用
           repo init -u https://github.com/LineageOS/android -b "${{ inputs.branch }}" \
-               --depth=1 --git-lfs --partial-clone
+               --depth=1 --git-lfs
           df -h /
 
-      - name: repo sync（带磁盘观测，失败自动重试）
-        timeout-minutes: 200
+      # 峰值 = 工作树 + .repo 对象库。一次性同步会同时持有两份 → 实测在 108G 上爆盘。
+      # 分批同步，每批结束立刻删掉该批的对象库（工作树已落地；未同步的项目下一批自己再拉）。
+      - name: repo sync（分批 + 每批回收对象库）
+        timeout-minutes: 240
         shell: bash
         env:
-          GIT_LFS_SKIP_SMUDGE: "1"        # 先不落 LFS 内容，稍后只对 blob 树拉
+          GIT_LFS_SKIP_SMUDGE: "1"
         run: |
-          ( while :; do sleep 180; printf 'OBS %s  .repo=%s  avail=%sG\n' "$(date -u +%H:%M:%S)" \
-              "$(du -sh .repo 2>/dev/null | cut -f1)" "$(df --output=avail -BG / | tail -1 | tr -dc 0-9)"; done ) &
-          MON=$!
-          for i in 1 2 3 4 5; do
-            echo "=== sync 第 $i 次 ==="
-            if repo sync -c --no-tags -j16 --force-sync; then OK=1; break; fi
-            echo "第 $i 次失败；当前磁盘："; df -h /; du -sh .repo 2>/dev/null
-            [ "$i" = 5 ] && { kill $MON 2>/dev/null; exit 1; }
-            sleep 25
+          set -o pipefail
+          repo list -p | sort > /tmp/projects.txt
+          echo "项目数=$(wc -l < /tmp/projects.txt)"
+          split -n l/12 /tmp/projects.txt /tmp/batch.
+          for b in /tmp/batch.*; do
+            echo "=== $(basename "$b"): $(wc -l < "$b") 个项目 ==="
+            ok=0
+            for try in 1 2 3; do
+              if repo sync -c --no-tags -j8 --force-sync $(cat "$b"); then ok=1; break; fi
+              echo "第 $try 次失败，重试"; sleep 20
+            done
+            [ "$ok" = 1 ] || { echo "批 $(basename "$b") 同步失败"; exit 1; }
+            echo "对象库: $(du -sh .repo/project-objects 2>/dev/null | cut -f1) -> 回收"
+            rm -rf .repo/project-objects/*
+            df -h / | tail -1
           done
-          kill $MON 2>/dev/null
-          [ "${OK:-0}" = 1 ]
-          # 只对承载固件镜像的 blob 树取 LFS 内容（约 360MB）
           for t in vendor/oneplus/ovaltine vendor/oneplus/sm8450-common; do
-            [ -d "$t" ] && git -C "$t" lfs pull 2>/dev/null || true
+            [ -d "$t" ] && { git -C "$t" lfs pull 2>/dev/null || true; }
           done
+          test -d device/oneplus/ovaltine && test -f kernel/oneplus/sm8450/Makefile || { echo "关键仓库缺失"; exit 1; }
           du -sh .repo; df -h /
 
       - name: 空间不足时回收 .repo 对象库
