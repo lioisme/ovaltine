@@ -73,4 +73,5 @@
   <remove-project name="platform/prebuilts/module_sdk/Wifi" /> <!-- prebuilts/module_sdk/Wifi -->
   <remove-project name="platform/prebuilts/module_sdk/art" /> <!-- prebuilts/module_sdk/art -->
   <remove-project name="platform/prebuilts/module_sdk/conscrypt" /> <!-- prebuilts/module_sdk/conscrypt -->
+  <remove-project name="LineageOS/hudson" /> <!-- lineage/hudson：Jenkins 脚本，编译用不到；实测它的 checkout 失败会把整批拖炸 -->
 </manifest>
