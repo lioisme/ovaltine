@@ -94,6 +94,84 @@ API 用量记录：GitHub REST 未认证限额 60/小时，探针共消耗 31 �
 
 ---
 
+## [2026-10-29] vendor blob 提取流程（底包 → 分区镜像 → dump）
+
+### 分区清单解析（payload.bin 元数据）
+
+```
+工具链：python3.9 venv + payload_dumper 0.2.2（仅用其 protobuf 定义）+ 自写提取脚本 vendor_extract/my_dumper.py
+说明：payload_dumper 0.2.2 在 macOS Python 3.9（spawn 模式）下 multiprocessing 报
+     "TypeError: cannot pickle '_io.BufferedReader' object"，--workers 1 同样失败，
+     故改用自写脚本（ZERO/REPLACE/REPLACE_BZ/REPLACE_XZ，逐操作 sha256 校验）。
+底包为 FULL OTA（无 SOURCE_COPY 依赖），目标分区共 11 个 / ~5.9GB 原始数据。
+```
+
+### 提取结果（vendor_extract/images/，全部操作 sha256 校验通过）
+
+```
+boot.img          0.20 GB   ← 内核版本核验（见下）
+dtbo.img          0.03 GB
+system.img        0.79 GB
+system_ext.img    0.95 GB
+product.img       0.01 GB
+vendor.img        0.68 GB
+vendor_boot.img   0.20 GB
+vendor_dlkm.img   0.16 GB
+odm.img           1.26 GB
+odm_dlkm.img      0.00 GB
+my_product.img    1.65 GB
+（未提取：my_stock 2.15GB / my_bigball 0.60GB 等 oplus 应用分区，blob 清单不引用）
+```
+
+### 内核版本核验（boot.img strings）
+
+```
+Linux version 5.10.236-android12-9-o-g55571f3ffcfa (...) #1 SMP PREEMPT Sat Feb 28 09:56:13 UTC 2026
+→ 与任务书锚定"内核 5.10.236-android12-9"完全一致 ✓（HARDWARE_MATRIX SoC 项证据补齐）
+```
+
+### ext4/EROFS 展开（dump 目录）
+
+```
+文件系统检测：oplus 分区（vendor/odm/system/system_ext/product/my_product）全部为 EROFS
+（镜像偏移 1024 处 magic e0f5e1e2）；仅 vendor_dlkm 为 ext4。
+工具选型记录：
+  1. p7zip 17.06：ext4 处理有缺陷（CRC Failed），EROFS 不支持 → 弃用
+  2. 7-Zip 26.05 (sevenzip)：EROFS Open Error → 弃用；ext4 可用（用于 vendor_dlkm）
+  3. erofs-utils 1.9.4（brew，fsck.erofs）：EROFS 唯一可靠提取工具 → 采纳
+     注意：my_product 镜像内含重复路径条目，需 --overwrite 才能完整解出
+最终展开结果（vendor_extract/dump/，共 ~10GB）：
+  vendor 1.3G ✓  odm 2.2G ✓  system 1.2G ✓  system_ext 1.6G ✓
+  product 17M ✓  my_product 2.3G ✓（--overwrite）  vendor_dlkm 154M ✓（7zz ext4）
+```
+
+### extract-files 端到端验证（无全量源码树的迷你树方案）
+
+```
+布局：scratch/{tools/extract-utils(git clone LineageOS/android_tools_extract-utils),
+       device/oneplus/{ovaltine,sm8450-common}(baseline 镜像的本地克隆工作副本),
+       prebuilts/extract-tools/{linux,darwin}-x86/bin/patchelf-0_18(brew patchelf 0.19.2 软链),
+       python312(python-build-standalone 3.12.16，系统 python3.9 无 match 语法)}
+运行：ovaltine 树 extract-files.py（ExtractUtils.device_with_common 同时处理两份清单）
+       --allow-prohibited-files <dump>
+
+三轮清单适配（EX01 底包 vs 基线清单锚点差异，已导出 patches/ex01-adaptation/）：
+  第1轮：ovaltine 清单 4 处去 pin（|sha1 固定哈希与 EX01 不符）+ 指纹 vintf manifest
+         HIDL→AIDL 路径替换（manifest_oplus_fingerprint.xml → manifest_oplus_fingerprint_aidl.xml）
+         = 5 insertions/5 deletions
+  第2-3轮：pjgowtham common 清单 pixelworks Iris 显示增强 11 项全部注释
+         （EX01 仅保留 odm/lib{,64}/libpwiris*.so 与 vendor/lib{,64}/ 同类库，
+          odm/bin/hw 服务、rc、vintf manifest、libpwirisIoctlWrapper.so 等已从底包移除）
+         = 11 insertions/11 deletions
+  第3轮结果：0 missing，extract exit=0
+
+产物（scratch/vendor/oneplus/，即构建树的 vendor/ 目标位置）：
+  ovaltine:        1414 blobs（1.8GB）+ Android.bp/Android.mk/BoardConfigVendor.mk/ovaltine-vendor.mk
+  sm8450-common:   1265 blobs（572MB）+ 同套 makefile（sm8450-common-vendor.mk）
+  blob fixup 全部生效（composer-service ndk 依赖改写、media_codecs_cape 过滤、
+  gnss/keymint ndk_platform→ndk、libqcrilNr poweron_opt 改写、msm_irqbalance 扩展等）
+```
+
 ## 构建尝试记录
 
-（暂无。构建尝试将按任务书 §4.3 SOP 逐条记录。）
+（见 DECISIONS.md [DECISION-003]：构建宿主阻塞，未进入 repo sync / brunch 阶段。）

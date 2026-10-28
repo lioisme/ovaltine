@@ -70,3 +70,31 @@
 4. 项目根目录 OxygenOS 卡刷包 `CPH2415_15.0.0.1901(EX01)` 已确认存在（`CPH2415_15.0.0.1901_EX01.zip`，6.1 GB，metadata 已核验），vendor blob 提取不受此约束影响。
 
 结论：vendor 提取、树分析、补丁整理、manifest 编写等阶段 1–2 产出可正常完成；**brunch 构建步骤本身在当前宿主不可执行**，除非用户决策引入 Linux 环境（真实机/云主机/ARM Linux 盒子）或接受在 Docker + 16 GB 内存的勉强条件下超长耗时尝试。最终处理见 STATUS.md 与 BUILD_LOG.md 构建尝试记录。
+
+---
+
+## [DECISION-003] 构建步骤触发阻塞路径终止（任务书 §6.3），不执行 repo sync
+
+- **日期**：2026-10-29
+- **状态**：已生效（不可逆标记：本会话内不进行全量 repo sync，不进行 brunch）
+- **触发条件**：任务书 §6.3 阻塞路径
+
+### 精确缺失项
+
+1. **Linux x86_64 构建宿主**：lineage-22.1（Android 15）构建仅支持 Linux x86_64 宿主；当前宿主为 macOS（darwin 25.6.0 x64），原生构建不受支持。
+2. **内存**：宿主 16 GB，低于 A15 全量构建实用下限（32 GB+）。
+3. （非阻塞，已备妥）repo 工具可 `curl` 安装；磁盘 522 GB 充足；vendor blobs 已从底包完整提取并生成 vendor/oneplus/{ovaltine,sm8450-common}。
+
+### 已排除的替代方案（逐条）
+
+| 替代方案 | 排除理由 |
+|---|---|
+| macOS 原生 brunch | 构建系统不支持 darwin 宿主（AOSP/LineageOS 官方构建要求 Linux） |
+| Docker / OrbStack / Colima 容器构建 | 三者均未安装；即便安装，Docker Desktop on 16 GB Intel Mac 跑 A15 全量构建会因内存不足 OOM 或超过 12 小时，且容器镜像另需 ~150 GB，成功概率接近零 |
+| 本地 Linux 虚拟机（UTM/QEMU） | 同样受 16 GB 内存硬约束；VM 内再分配 10–12 GB 后构建并行度被迫降至 -j4 以下，耗时不现实 |
+| 云主机构建 | 超出 Agent 权限（需用户开通云资源与付费决策），且 250 GB 级源码 + 构建的上传/费用属用户级决策 |
+| 仅完成 repo sync 备树 | 无构建宿主前提下，~250 GB / 数小时的同步不产生任何可验证产出；任务书 §6.3 要求停止而非无限准备 |
+
+### 判定
+
+阶段 0/1/2 全部产出物已完成且可验证（DECISIONS/BUILD_LOG/BASELINE_EVALUATION/HARDWARE_MATRIX/local_manifests/patches/vendor 产物），超出任务书对阻塞路径的最低要求（vendor 提取管线不仅"记录流程"而且实测通过）。构建步骤阻塞于宿主环境，属 Agent 权限范围外的用户决策项（引入 Linux 机器或接受云构建）。按任务书 §6.3 停止并输出 STATUS.md。

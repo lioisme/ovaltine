@@ -1,0 +1,46 @@
+From 60818e4e7613ada004d9366ac9787a775fa1ae97 Mon Sep 17 00:00:00 2001
+From: lioisme <lioisme@users.noreply.github.com>
+Date: Thu, 29 Oct 2026 06:23:29 +0800
+Subject: [PATCH] sm8450-common: drop pixelworks iris services absent in EX01
+ base
+
+---
+ proprietary-files.txt | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/proprietary-files.txt b/proprietary-files.txt
+index 393e8e5..4eaf8bb 100644
+--- a/proprietary-files.txt
++++ b/proprietary-files.txt
+@@ -328,17 +328,17 @@ vendor/lib64/vendor.oplus.hardware.cwb@1.0.so;MODULE_SUFFIX=_vendor
+ vendor/lib64/vendor.qti.hardware.qdutils_disp@1.0.so
+ 
+ # Display (Pixelworks)
+-odm/bin/hw/vendor.pixelworks.hardware.display.iris-service
+-odm/bin/hw/vendor.pixelworks.hardware.feature.irisfeature-service
+-odm/bin/irisConfig
+-odm/etc/init/vendor.pixelworks.hardware.feature.irisfeature-service.rc
+-odm/etc/vintf/manifest/vendor.pixelworks.hardware.display.iris-service.xml
+-odm/etc/vintf/manifest/vendor.pixelworks.hardware.feature.irisfeature-service.xml
+-odm/lib64/libpwirisIoctlWrapper.so
+-odm/lib64/libpwiriscalibrate.so
+-odm/lib64/libpwirisservice.so
+-odm/lib64/libpwirissoft.so
+-odm/lib64/libpwsoftirisPCS.so
++# odm/bin/hw/vendor.pixelworks.hardware.display.iris-service [EX01: service removed, lib only]
++# odm/bin/hw/vendor.pixelworks.hardware.feature.irisfeature-service [EX01: service removed, lib only]
++# odm/bin/irisConfig [EX01: removed]
++# odm/etc/init/vendor.pixelworks.hardware.feature.irisfeature-service.rc [EX01: removed]
++# odm/etc/vintf/manifest/vendor.pixelworks.hardware.display.iris-service.xml [EX01: removed]
++# odm/etc/vintf/manifest/vendor.pixelworks.hardware.feature.irisfeature-service.xml [EX01: removed]
++# odm/lib64/libpwirisIoctlWrapper.so [EX01: removed]
++# odm/lib64/libpwiriscalibrate.so [EX01: removed]
++# odm/lib64/libpwirisservice.so [EX01: removed]
++# odm/lib64/libpwirissoft.so [EX01: removed]
++# odm/lib64/libpwsoftirisPCS.so [EX01: removed]
+ odm/lib64/libsnapdragoncolor-pxlw.so
+ odm/lib64/vendor.pixelworks.hardware.feature@1.0.so
+ odm/lib64/vendor.pixelworks.hardware.feature@1.1.so
+-- 
+2.51.0
+

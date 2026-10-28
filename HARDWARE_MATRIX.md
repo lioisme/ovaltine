@@ -7,7 +7,7 @@
 
 | 硬件模块 | 具体规格 | 状态 | 判定依据（可验证） | 驱动来源 |
 |---|---|---|---|---|
-| SoC | Snapdragon 8+ Gen 1（SM8475, cape） | 一般 | DTS 完整：`kernel/oneplus/sm8450-devicetrees/qcom/cape-*.dtsi`（mtp/v2/gpu/regulators/thermal 等 10+ 片段）；内核 22.1 分支持续合入 ASB-2025-04 + CAF msm-5.10（HEAD `63aeb92d069b`，2025-05-01）；底包 boot 镜像内核版本待核验（提取中） | 开源内核树 lineage-ovaltine-dev + 上游 DTS |
+| SoC | Snapdragon 8+ Gen 1（SM8475, cape） | 一般 | DTS 完整：`kernel/oneplus/sm8450-devicetrees/qcom/cape-*.dtsi`（mtp/v2/gpu/regulators/thermal 等 10+ 片段）；内核 22.1 分支持续合入 ASB-2025-04 + CAF msm-5.10（HEAD `63aeb92d069b`，2025-05-01）；**底包 boot.img strings 核验：`Linux version 5.10.236-android12-9-o-g55571f3ffcfa`，与任务书锚定完全一致** | 开源内核树 lineage-ovaltine-dev + 上游 DTS |
 | GPU | Adreno 730 | 一般 | `cape-gpu.dtsi` 存在；内核 22.1 含 kgsl 调度修复（`8568d36d855b` Elevate command submission thread priority、`aa239ef5f46c` Restore original task priority）；Vulkan 扩展完整性/性能调优未验证 | 开源 kgsl(DRM) + 闭源 Adreno blob（底包提取） |
 | 显示 | 6.7" 120Hz Fluid AMOLED 2412×1080 | 一般 | OSS display 栈为 22.1 树默认状态（`BoardConfigCommon.mk:140` 内核模块表含 `qcom/opensource/display-drivers/msm`）；21.0 release notes（2024-08-27）"Force 120Hz refresh rate by default to remove lags" 表明变刷新率策略曾有滞纳问题；LTPO 自适应策略未验证 | OSS display-drivers（内核）+ OSS composer + 闭源 display HDR/HWC 组件 |
 | 触摸 | 屏下触摸（Oplus Touch 框架） | 一般 | 触摸 AIDL 服务与手势实现位于 fork `android_hardware_oplus lineage-21-8450`（`0fb1071` "Touch: implement touchscreen gestures through Oplus Touch"，2024-06-09）；**但 22.1 manifest 采用 LineageOS 上游 hardware_oplus `37e78750b957`**（fork 无 22.x 分支），手势等 8450 特化是否被上游携带未验证（风险 R-3a） | 内核 touch 驱动（modules 树）+ hardware_oplus HAL |
