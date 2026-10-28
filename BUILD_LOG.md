@@ -94,7 +94,53 @@ API 用量记录：GitHub REST 未认证限额 60/小时，探针共消耗 31 �
 
 ---
 
-## [2026-10-29] vendor blob 提取流程（底包 → 分区镜像 → dump）
+## [2026-10-29] 真机接入扫描（用户指令①）
+
+```
+adb：platform-tools 37.0.1（官方 zip 直装 ~/tools/android-platform-tools，避免 brew 源码编译）
+设备：已脱敏 = CPH2415（OP5555L1 主板），已授权
+关键读数（原始数据 probes/device_scan/*.txt）：
+  - 构建 S.245f058-1f931-1f92d（与底包 OTA post-build 一致）
+  - 内核 5.10.236-android12-9-o-g55571f3ffcfa（与 boot.img strings 一致）
+  - 基带 Q_V1_P14,Q_V1_P14（与任务书锚定逐字一致）
+  - ro.boot.flash.locked=0, verifiedbootstate=orange → bootloader 已解锁
+  - slot _a；SoC SM8475 / ro.board.platform=taro；CPU part 0xd46×4+0xd47×3+0xd48×1
+    = A510×4 + A710×3 + X2×1（8+ Gen 1 拓扑）
+  - RAM 15.6GB + swap 9.5GB；userdata 224GB（256GB 版）
+  - 显示 1080×2412 120/90/60Hz，HDR types [2,3,4]，540nit
+  - 传感器：BMI26x(accel/gyro) + AK0991x(mag) + TCS3701(oplus Fusion Light/proximity)
+    → 与 22.1 分支 wise-light 补丁 42cc1f8 语义精确对应
+  - 输入：touchpanel/touchpanel_kpd/oplus_fp_input（UDFPS）/waipio-mtp-snd-card
+  - 相机 6 ID（5 后 + 1 前）；NFC 全功能 + eSE；dsds 配置
+报告：DEVICE_REPORT.md；HARDWARE_MATRIX 升级注记见其 §14
+```
+
+## [2026-10-29] 版本选型复核（用户指令②）
+
+DECISION-004：维持 **lineage-22.1**。候选 22.2/23.0/23.2/24.0-6.6/21.0 逐项排除，理由见 DECISIONS.md。
+
+## [2026-10-29] macOS 原生编译环境（用户指令③）
+
+```
+宿主：macOS 26 (darwin 25.6.0) x64 · Xcode 21 (clang-2100.1.1.101) 全量版在位
+磁盘：APFS 容器 1TB，新增 Case-sensitive APFS 卷 disk1s7 → /Volumes/los-build
+      （APFS 动态共享空间，非定容；创建时可用 475GB）
+工具链：
+  - JDK 17.0.21 Temurin（tar.gz 解压 ~/tools/jdk17；A15 构建要求 17，宿主自带 21 不兼容）
+  - git-lfs 3.8.1 官方二进制 ~/tools/git-lfs（brew 慢，改直装）+ git lfs install
+  - repo 2.71（~/bin/repo）
+  - repo init：gerrit.googlesource.com 被网络阻断（clone.bundle 超时）
+    → --repo-url https://github.com/GerritCodeReview/git-repo.git 绕过
+    → android.googlesource.com 的 git 端点实测可达（ls-remote 成功），
+      同步用 --no-clone-bundle 直接走 git 协议
+manifest：lineage-22.1 @ 46ed254 "Track our own forks for 2025-04 ASB patching"
+          + .repo/local_manifests/ovaltine.xml（同 local_manifests/ovaltine-lineage-22.1.xml）
+同步命令：repo sync -c -j12 --no-clone-bundle --no-tags --fail-fast
+          （1212 工程走 aosp 远端 + LineageOS 仓库 + 6 个 local_manifest 工程）
+注意：zcode 后台任务 10 分钟上限 → 同步用 nohup+disown 脱离会话存活，轮询监控
+brew 依赖（后台）：coreutils gnu-sed gnu-tar gawk cmake ninja ccache openssl@3 libtool
+```
+
 
 ### 分区清单解析（payload.bin 元数据）
 
