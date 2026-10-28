@@ -141,6 +141,31 @@ manifest：lineage-22.1 @ 46ed254 "Track our own forks for 2025-04 ASB patching"
 brew 依赖（后台）：coreutils gnu-sed gnu-tar gawk cmake ninja ccache openssl@3 libtool
 ```
 
+### 同步排障记录
+
+```
+1) android.googlesource.com 实测被网络阻断（curl 443 超时；ls-remote 侥幸成功一次不可依赖）
+   → 第一次 fail-fast 同步死于 platform/bootable/libbootloader 连接超时
+2) repo 不允许 local_manifest 覆写主 manifest 已有 remote 属性（"different attributes"报错）
+   → 按清华镜像指南做法直接 sed .repo/manifests/default.xml：
+     fetch="https://android.googlesource.com" → "https://mirrors.ustc.edu.cn/aosp"
+3) USTC 镜像对并发 git 连接限流（HTTP 429）→ j12 立即触发
+   → 改 /Volumes/los-build/sync_loop.sh：-j6 + 去 --fail-fast + 外层重试循环（40 轮，轮间退避 60s）
+4) 实测吞吐：j6 下 ~23-33MB/s、零 429；预计 180GB 约 2 小时
+5) zcode 后台任务 10 分钟上限 → nohup + disown 脱离会话，Bash 轮询监控
+```
+
+### soong darwin 支持残留勘察（build/ 同步完成后第一时间检查）
+
+```
+build/make/core/main.mk:519  "HOST OS darwin build is broken, disable this check for darwin for now"
+                             → darwin 仍是受支持的 HOST_OS 分支（带已知破损依赖的豁免）
+build/soong/ui/build/config.go:1043,1634  darwin → darwin-x86 预构建目录映射在位
+build/soong/ui/build/sandbox_darwin.go     darwin sandbox 实现存在
+结论：A15 构建系统并未完全移除 darwin 支持，模块级 darwin:enabled:false 才是主要风险面
+```
+
+## [2026-10-29] vendor blob 提取流程（底包 → 分区镜像 → dump）
 
 ### 分区清单解析（payload.bin 元数据）
 
