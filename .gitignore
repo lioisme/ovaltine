@@ -7,3 +7,4 @@ probes/*.json
 *.img
 vendor_dump/
 patches/optional-pjgowtham/
+probes/
