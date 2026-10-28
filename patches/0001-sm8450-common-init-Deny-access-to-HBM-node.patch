@@ -1,0 +1,44 @@
+From 8f7dc6e91318a5d143fec8dae4a35c6781cb6347 Mon Sep 17 00:00:00 2001
+From: Bruno Martins <bgcngm@gmail.com>
+Date: Tue, 25 Jul 2023 14:35:22 +0000
+Subject: [PATCH] sm8450-common: init: Deny access to HBM node
+
+The stock fingerprint sensor HAL writes to the HBM node on finger press,
+but that conflicts with UDFPS framework dimming. Do not let it mess
+things up.
+
+Change-Id: Ic44b93ff88b87d6e4c4eec7a809fe8919bbb4cfc
+---
+ init/init.oplus.rc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/init/init.oplus.rc b/init/init.oplus.rc
+index 71e8f56..0a3f0df 100644
+--- a/init/init.oplus.rc
++++ b/init/init.oplus.rc
+@@ -29,13 +29,11 @@ on early-boot
+ on boot
+     # Display
+     chown system system /sys/kernel/oplus_display/dump_info
+-    chown system system /sys/kernel/oplus_display/hbm
+     chown system system /sys/kernel/oplus_display/seed
+     chown system system /sys/kernel/oplus_display/panel_pwr
+     chown system system /dev/oplus_display
+     chown system system /sys/kernel/oplus_display/dimlayer_bl_en
+     chown system system /sys/kernel/oplus_display/ffl_set
+-    chown system system /sys/kernel/oplus_display/dimlayer_hbm
+     chown system system /sys/kernel/oplus_display/force_screenfp
+     chown system system /sys/kernel/oplus_display/notify_fppress
+     chown system system /sys/kernel/oplus_display/aod_light_mode_set
+@@ -47,6 +45,8 @@ on boot
+     chown system system /sys/kernel/oplus_display/max_brightness
+     chown system system /sys/kernel/oplus_display/dynamic_osc_clock
+ 
++    chmod 0000 /sys/kernel/oplus_display/hbm
++
+     # Sensors
+     chown system system /sys/devices/platform/soc/soc:sensor_fb/adsp_notify
+ 
+-- 
+2.51.0
+

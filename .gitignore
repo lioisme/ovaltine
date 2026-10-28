@@ -2,3 +2,8 @@
 baseline/
 vendor_extract/
 probes/*.json
+
+*.zip
+*.img
+vendor_dump/
+patches/optional-pjgowtham/

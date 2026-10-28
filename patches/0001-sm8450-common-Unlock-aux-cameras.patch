@@ -1,0 +1,30 @@
+From 01c3d5a23a875928b79e464db0895f91457126e0 Mon Sep 17 00:00:00 2001
+From: LuK1337 <priv.luk@gmail.com>
+Date: Wed, 1 Jun 2022 19:31:13 +0200
+Subject: [PATCH] sm8450-common: Unlock aux cameras
+
+This basically NOPs update_camera_metadata_entry() call that sets
+ANDROID_REQUEST_AVAILABLE_CAPABILITIES_SYSTEM_CAMERA to 1 for aux cams.
+
+Change-Id: Ie869b3eb0ea85af99904e2e23e86c4cd0acc3596
+---
+ extract-files.sh | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/extract-files.sh b/extract-files.sh
+index 1e7f64a..c322d35 100755
+--- a/extract-files.sh
++++ b/extract-files.sh
+@@ -60,6 +60,9 @@ fi
+ 
+ function blob_fixup() {
+     case "${1}" in
++        odm/etc/camera/CameraHWConfiguration.config)
++            sed -i "/SystemCamera = / s/1;/0;/g" "${2}"
++            ;;
+         product/etc/sysconfig/com.android.hotwordenrollment.common.util.xml)
+             sed -i "s/\/my_product/\/product/" "${2}"
+             ;;
+-- 
+2.51.0
+

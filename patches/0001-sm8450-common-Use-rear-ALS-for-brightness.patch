@@ -1,0 +1,27 @@
+From d3cc97a7e12e29c32608644db47ca44b8cc925f4 Mon Sep 17 00:00:00 2001
+From: Weikai Kong <priv@pppig236.com>
+Date: Sat, 18 Jan 2025 16:02:05 -0500
+Subject: [PATCH] sm8450-common: Use rear ALS for brightness
+
+Seems to be better than the wise light since it is not under screen
+
+Change-Id: I57393ec362e002139594fe7f395b0d9d9df41dab
+Signed-off-by: Weikai Kong <priv@pppig236.com>
+---
+ overlay/OPlusFrameworksResCommon/res/values/config.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/overlay/OPlusFrameworksResCommon/res/values/config.xml b/overlay/OPlusFrameworksResCommon/res/values/config.xml
+index 3ef78e0..f6858e2 100644
+--- a/overlay/OPlusFrameworksResCommon/res/values/config.xml
++++ b/overlay/OPlusFrameworksResCommon/res/values/config.xml
+@@ -120,5 +120,5 @@
+ 
+     <!-- The type of the light sensor to be used by the display framework for things like
+          auto-brightness. If unset, then it just gets the default sensor of type TYPE_LIGHT. -->
+-    <string name="config_displayLightSensorType" translatable="false">qti.sensor.wise_light</string>
++    <string name="config_displayLightSensorType" translatable="false">qti.sensor.light_rear</string>
+ </resources>
+-- 
+2.51.0
+

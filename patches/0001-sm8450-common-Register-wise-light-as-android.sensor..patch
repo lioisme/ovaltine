@@ -1,0 +1,44 @@
+From 42cc1f81ee685e803d668e4ac55a93d27cd188e4 Mon Sep 17 00:00:00 2001
+From: LuK1337 <priv.luk@gmail.com>
+Date: Fri, 20 Jan 2023 22:18:13 +0100
+Subject: [PATCH] sm8450-common: Register wise light as android.sensor.light
+
+Sadly a lot of apps aren't aware of config_displayLightSensorType.
+
+Change-Id: Ib1c2f0ba8305dbfe262722f2a1862dafaac973df
+---
+ extract-files.sh      | 4 ++++
+ proprietary-files.txt | 2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/extract-files.sh b/extract-files.sh
+index efcb9bc..1e7f64a 100755
+--- a/extract-files.sh
++++ b/extract-files.sh
+@@ -72,6 +72,10 @@ function blob_fixup() {
+         vendor/etc/msm_irqbalance.conf)
+             sed -i "s/IGNORED_IRQ=27,23,38$/&,115,332/" "${2}"
+             ;;
++        vendor/lib64/sensors.ssc.so)
++            sed -i "s/qti.sensor.wise_light/android.sensor.light\x00/" "${2}"
++            "${SIGSCAN}" -p "F1 E9 D3 84 52 49 3F A0 72" -P "F1 A9 00 80 52 09 00 A0 72" -f "${2}"
++            ;;
+     esac
+ }
+ 
+diff --git a/proprietary-files.txt b/proprietary-files.txt
+index cc07bcf..135cd8d 100644
+--- a/proprietary-files.txt
++++ b/proprietary-files.txt
+@@ -1191,7 +1191,7 @@ vendor/lib64/libsnsapi.so
+ vendor/lib64/libsnsdiaglog.so
+ vendor/lib64/libssc.so
+ vendor/lib64/libssc_default_listener.so
+-vendor/lib64/sensors.ssc.so
++vendor/lib64/sensors.ssc.so|b529932aecdfb2ca8cefe92f32fc79344dc4877b|6bc48a42ecdb949dace796960dab2d4e46522e43
+ vendor/lib64/vendor.qti.hardware.sensorscalibrate@1.0.so
+ 
+ # Sensors config
+-- 
+2.51.0
+

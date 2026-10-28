@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ovaltine (OnePlus Ace Pro / 10T, CPH2415) — LineageOS 22.1 local manifest
+  依据 DECISIONS.md DECISION-001（目标分支 lineage-22.1）
+  版本选择依据 BASELINE_EVALUATION.md：
+    - device/oneplus/ovaltine            : lineage-ovaltine-dev @ lineage-22.1（59052db232dc）
+    - device/oneplus/sm8450-common       : pjgowtham @ lineage-22.1（258dbbd818fb）
+      理由：该树已于 7a3b991 针对 NE2211_15.0.0.401(EX01)（OOS 15 EX01 底包）适配 blob 清单，
+      与本项目底包 CPH2415_15.0.0.1901(EX01) 同代；比 lineage-ovaltine-dev 同名分支（blob 基于
+      CPH2415_11.F.66 / OOS 14 代）更新且含 offline-charging 修复。
+    - kernel 三仓库                       : lineage-ovaltine-dev @ lineage-22.1
+    - hardware/oplus                     : LineageOS 上游 lineage-22.1（fork 无 22.x 分支，
+      上游分支活跃且在官方 22.1 manifest 之外无冲突）
+  基础 manifest：LineageOS/android lineage-22.1（官方 manifest 不含任何 oneplus/oplus 工程，无路径冲突）
+-->
+<manifest>
+  <project path="device/oneplus/ovaltine"
+           name="lineage-ovaltine-dev/android_device_oneplus_ovaltine"
+           remote="github"
+           revision="59052db232dc0b861cca9d15ec8fa0e7a81a2f74" />
+
+  <project path="device/oneplus/sm8450-common"
+           name="pjgowtham/android_device_oneplus_sm8450-common"
+           remote="github"
+           revision="258dbbd818fbf29be579d6255888ca4bba3fdba1" />
+
+  <project path="kernel/oneplus/sm8450"
+           name="lineage-ovaltine-dev/android_kernel_oneplus_sm8450"
+           remote="github"
+           revision="63aeb92d069b6b58673db1a81f7a810e47a170de" />
+
+  <project path="kernel/oneplus/sm8450-devicetrees"
+           name="lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees"
+           remote="github"
+           revision="c05fa09edcb9838df2d3b692d4fb25eac55bda2b" />
+
+  <project path="kernel/oneplus/sm8450-modules"
+           name="lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules"
+           remote="github"
+           revision="cb014aff762959c659804cdacc219d9e2720e95f" />
+
+  <project path="hardware/oplus"
+           name="LineageOS/android_hardware_oplus"
+           remote="github"
+           revision="37e78750b9574cb2838deceab8f2f4d229720c99" />
+</manifest>
