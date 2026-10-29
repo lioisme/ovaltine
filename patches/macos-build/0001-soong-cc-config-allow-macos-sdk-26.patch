@@ -1,0 +1,14 @@
+diff --git a/cc/config/darwin_host.go b/cc/config/darwin_host.go
+index 1783f4967..c24f3a3a1 100644
+--- a/cc/config/darwin_host.go
++++ b/cc/config/darwin_host.go
+@@ -54,6 +54,9 @@ var (
+ 		"12",
+ 		"13",
+ 		"14",
++		"15",
++		"25",
++		"26",
+ 	}
+ 
+ 	darwinAvailableLibraries = append(

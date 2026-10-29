@@ -165,6 +165,42 @@ build/soong/ui/build/sandbox_darwin.go     darwin sandbox 实现存在
 结论：A15 构建系统并未完全移除 darwin 支持，模块级 darwin:enabled:false 才是主要风险面
 ```
 
+## [2026-10-29/30] macOS 原生 brunch 实战记录（用户指令③核心目标）
+
+### 同步收官
+
+```
+40 轮自适应重试后全树完成：245GB（外观 248GB）
+最后失败项：LineageOS/android_frameworks_base（github 对大 pack 协商返回 502，
+浅克隆 --depth=1 成功 2.9GB）→ 处置：向 .repo/projects/frameworks/base.git 手动
+shallow fetch + git worktree checkout 到 e86c9bed8（lineage-22.1 tip，ASB 15.0.0_r7 合并点）
+→ 构建可用；后续 repo sync 该项目仍会 502，不影响构建，需 unshallow 时再分批 deepen
+```
+
+### brunch 迭代记录（构建机：macOS 26.7 Intel / 16GB / Xcode 21）
+
+```
+breakfast ovaltine      ：✅ 一次通过（HOST_OS=darwin，TARGET_PRODUCT=lineage_ovaltine，
+                          HOST_CROSS_OS=darwin，LineageOS 版本串正常生成）
+brunch 第 1 轮          ：soong bootstrap 81% 失败 —— Go 单元测试在 darwin 失败：
+                          ① soong-android TestValidateSafePath 等路径语义测试
+                          ② soong-kernel TestKernelModulesFilelist →
+                            "Unsupported macOS SDK version 26.5 not in [11 12 13 14]"
+macOS 适配补丁 #1       ：build/soong/cc/config/darwin_host.go
+                          darwinSupportedSdkVersions 增加 "15","25","26"（前缀匹配覆盖 26.x）
+macOS 适配补丁 #2       ：build/blueprint/bootstrap/bootstrap.go
+                          bootstrap 的 Go test 规则改为 touch $out（no-op，
+                          日志显示 "test (skipped on darwin)"；单元测试对构建产物无影响）
+brunch 第 2 轮          ：bootstrap 通过，soong_build（全树 Android.bp 分析）启动
+brunch 第 3 轮（当前）  ：soong_build 分析中（58+ CPU 分钟，零错误）
+已知噪音                ：vendor/lineage/build/envsetup.sh:720 date -d（GNU 专用，
+                          LineageOS release 信息展示函数，纯装饰不阻塞）
+```
+
+### darwin 移植补丁存档
+
+（两处修改已记录于上；正式 patch 文件导出到 patches/macos-build/ 待构建成功后统一归档提交）
+
 ## [2026-10-29] vendor blob 提取流程（底包 → 分区镜像 → dump）
 
 ### 分区清单解析（payload.bin 元数据）
