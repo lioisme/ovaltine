@@ -147,3 +147,35 @@
 - 主构建路径改为 **Linux x86_64（32 GB RAM 起）**；macOS 仅保留为实验性分析环境，不进入发布路径。
 - `STATUS.md`/`BUILD_LOG.md` 已加审计注记；详细整改见 `AUDIT_REPORT.md` DOC-001 与 `TASK_PLAN.md` T-00。
 - 本条不替代 DECISION-001/004 的版本选择；版本安全性问题另见 `AUDIT_REPORT.md` SEC-002/ARCH-001。
+
+---
+
+## [DECISION-006] 测试执行边界：禁止真实刷入任何分区，仅允许内存启动/DSU
+
+- **日期**：2026-10-31
+- **状态**：已生效（硬约束；后续所有任务、脚本、文档、Agent 行为均受此约束）
+- **业主原文**：
+  > “你只能在内存中运行调试、测试，或者 DSU 运行调试、测试。禁止真实刷入任何分区。这一点要求持久化记录。”
+
+### 允许
+
+1. 内存启动：`fastboot boot <image>`（镜像只在 RAM，不写分区）。
+2. DSU（Dynamic System Updates）：在动态系统中安装/启动测试镜像；DSU 会写 userdata，测试前必须备份用户数据。
+3. 只读调试：`adb shell`、`adb pull`、`adb logcat`、`dumpsys`、`getevent`、`fastboot getvar` 等。
+4. 重启/退出：`adb reboot`、`fastboot reboot`、DSU 丢弃/卸载。
+
+### 禁止
+
+1. `fastboot flash` 任意分区（boot、dtbo、vendor_boot、vbmeta、system、vendor、odm、super 等）。
+2. `adb sideload`、recovery 写入、`fastboot -w`、`fastboot erase/format`、`fastboot set_active`。
+3. `dd of=/dev/block/...` 或任何工具的分区写操作。
+4. EDL/MSM/QFIL 刷写、重新上锁 bootloader、anti-rollback 降级。
+5. 任何“先刷了再回滚”的行为；回滚方式只有重启和 DSU 丢弃。
+
+### 影响
+
+- `AUDIT_REPORT.md` SEC-001 的“刷机风险路径”被政策关闭；但审计报告保留为历史快照，新增约束注记。
+- `SOP.md` 升级为 v2.0：移除全部刷机/回 stock/EDL 步骤，替换为内存启动/DSU。
+- `TASK_PLAN.md` 的 T-09/T-10/OT-05 等改为内存/DSU 测试与退出演练。
+- 构建产物只用于分析/内存/DSU 测试，不得刷入设备；发布验证必须依赖 DSU/内存/静态证据，无法验证的项标注“未验证”。
+- 违反本决策视为红线事故；立即停止、记录、升级，不得继续操作。

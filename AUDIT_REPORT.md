@@ -9,8 +9,12 @@
 | 设备 | OnePlus Ace Pro / 10T，codename `ovaltine`，报告型号 CPH2415，bootloader 已解锁 |
 | 审计依据 | 《开发作业临时约法》、业主七项要求、AOSP/LineageOS 官方构建规范、Android CDD/CTS/VTS、AVB、SELinux、SPDX、Git/OTA 行业惯例 |
 | 审计方法 | 静态源码审计、Git 历史审计、补丁可应用性实测、构建日志分析、vendor dump 交叉核验、manifest/props/设备扫描三方对照 |
-| 审计结论 | **NO-GO（禁止刷机/禁止发布）**；可继续整改开发 |
+| 审计结论 | **NO-GO（禁止发布）**；真实刷机永久禁止；可继续内存/DSU 整改开发 |
 | 报告状态 | 最终审计结果；整改由 `TASK_PLAN.md` 跟踪 |
+
+> **2026-10-31 业主强制约束更新**：只允许内存启动（`fastboot boot`）或 DSU 调试/测试，**禁止真实刷入任何分区**。
+> 该约束已记录为 `DECISIONS.md` DECISION-006；`SOP.md` v2.0 已移除全部刷机/回 stock/EDL 步骤；`TASK_PLAN.md` v1.1 已将 T-09/T-10/OT-05 改为内存/DSU 进出演练。
+> 本报告保留为审计快照；其中 SEC-001 的刷机风险路径已被政策关闭，但其余发现仍有效。
 
 ---
 
@@ -41,14 +45,14 @@
 
 ### 1.3 Top 10 问题（按风险排序）
 
-1. **SEC-001**：没有回滚到 Android 的 SOP 与关键分区备份；直接违反业主红线。
+1. **SEC-001**：没有回滚/退出的 SOP 与演练；**2026-10-31 已补 SOP v2.0（禁止刷机，仅内存/DSU），演练仍未执行**。
 2. **BLD-001**：构建从未成功，没有任何镜像；当前宿主不适合作为生产构建机。
 3. **ID-001**：构建身份是 CPH2417/Android 13，目标设备是 CPH2415/Android 15。
 4. **SEC-002**：安全补丁停在 2025-01（boot/vendor）与 2025-04（平台 ASB），设备底包已是 2026-06。
-5. **BLD-002 / BLD-003**：补丁链对选定基线不可应用，且没有自动化应用/回滚；`repo sync` 会把这些修改冲掉。
+5. **BLD-002 / BLD-003**：补丁链对选定基线不可应用，且没有自动化应用/回滚；**2026-10-31 已补 apply/verify 脚本与本轮补丁，完整 pinned manifest 仍待 Linux 环境**。
 6. **ID-002 / ID-003**：common 树来自 10 Pro（NE2213/Android 14），设备树锚定 OOS 14；属于跨机型、跨代混用。
-7. **DRV-001**：框架调光已开启，但 HBM 节点仍 `chown system` 给 fingerprint HAL，UDFPS 冲突未修。
-8. **DRV-002**：wise-light/rear-ALS 修复在选定树中缺失，自动亮度存在实质性风险。
+7. **DRV-001**：框架调光已开启，HBM 节点原为 `chown system`；**2026-10-31 已改为 `chmod 0000`，待 DSU/真机验证**。
+8. **DRV-002**：wise-light/rear-ALS 修复原缺失；**2026-10-31 已做名称替换 + rear-ALS overlay；旧 SIGSCAN 在 EX01 缺失，第二段待验证**。
 9. **SEC-003**：AVB 使用公共 testkey，并关闭 hashtree/verification；没有生产签名与密钥管理。
 10. **GOV-001 / GOV-003 / GOV-004**：非 main 分支作业、无 remote/云端备份、关键交付物被 `.gitignore` 排除。
 
@@ -338,28 +342,28 @@
   - OTA 安装脚本的 `assert` 通过。
 - **状态**：待整改。
 
-#### SEC-001 无回滚到 Android 的 SOP/关键分区备份/演练
+#### SEC-001 无内存/DSU 退出 SOP 与演练（原“回滚”项，按 DECISION-006 调整）
 
-- **证据**
-  - `DEVICE_REPORT.md:164-169` 只写了“bootloader 已解锁、AVB orange、可刷机”，并提示 `fastboot flash vbmeta --disable-verity --disable-verification`，没有 stock OTA 恢复、槽位切换、EDL/MSM 救砖、关键分区备份步骤。
-  - 全仓库无 `SOP.md`、无 `rollback`/`backup`/`persist`/`modemst`/`anti-rollback` 的可执行流程。
+- **证据（审计时）**
+  - `DEVICE_REPORT.md:164-169` 只写了“bootloader 已解锁、AVB orange、可刷机”，并提示 `fastboot flash vbmeta --disable-verity --disable-verification`，没有退出/备份流程。
+  - 审计时全仓库无 `SOP.md`、无 `backup`/`persist`/`modemst`/`anti-rollback` 的可执行流程。
   - 业主原话：“必须将随时可以回到安卓系统作为前提、底线、红线。记录到文档中。”
-- **根因**：项目按“能刷入”推进，未按“能恢复”设计；安全红线只停留在口头/背景。
-- **影响**：一旦 bootloop、分区表/槽位错误、IMEI/基带校准丢失或 anti-rollback 触发，设备可能无法回到可用 Android；这是不可接受的业主风险。
+- **2026-10-31 约束更新**：业主进一步要求**禁止真实刷入任何分区**，只允许内存启动/DSU。原“刷机+回滚”路径全部作废；本项改为“内存/DSU 进出演练”。
+- **根因**：项目按“能刷入”推进；红线只停留在口头/背景。
+- **影响**：DSU/内存测试若无法退出，会卡在测试系统；虽然不再有分区写入风险，但 userdata/DSU 状态仍需可恢复。
 - **整改方案**
-  1. 新增 `SOP.md` 第 0/5/7 章：刷机前备份、刷机、回滚、救砖、验证。
-  2. 备份清单至少包含：`persist`、`modemst1`、`modemst2`、`fsg`、`fsc`、`oplusdycnvbk`、`metadata`、`boot_a/b`、`vbmeta_a/b`、`dtbo_a/b`、`vendor_boot_a/b`、`super` 当前槽、`userdata` 重要数据；备份到两台独立介质并记录 SHA256。
-  3. 记录并验证 stock OTA `CPH2415_15.0.0.1901(EX01)` 的本地回刷路径；记录 `fastboot getvar current-slot`、`fastboot --set-active`、`fastboot reboot`。
-  4. 明确 anti-rollback：禁止刷入低于设备 ARB 版本的固件；记录设备当前 ARB/固件版本。
-  5. 刷机前演练一次“仅切槽/回 stock boot”的回滚；在真正刷 system 前完成。
-  6. 文档中写明：**解锁状态下不要重新上锁**；上锁可能因自定义签名直接变砖。
+  1. `SOP.md` v2.0 已写入：只允许 `fastboot boot`/DSU；禁止 flash/sideload/`-w`/`dd`/EDL；退出方式为重启或 DSU 丢弃。
+  2. 备份 userdata（DSU 会写 userdata）；记录 SHA256/介质。
+  3. 记录 stock 状态：`fastboot getvar all`、`current-slot`、fingerprint、SPL、ARB。
+  4. 演练 `fastboot boot` 进入/退出；演练 DSU 安装/启动/丢弃；记录 0 分区写入的证据（命令审计/操作日志）。
+  5. 明确 anti-rollback：不得通过任何工具写入低版本固件。
+  6. 文档写明：**禁止重新上锁**；上锁可能因自定义签名直接变砖。
 - **验收标准**
-  - `SOP.md` 中回滚章节可由第二人按步骤独立执行；
-  - 备份文件存在、可读、SHA256 校验通过；
-  - 至少一次从 Lineage 测试镜像回到 stock Android 的实操记录（含命令、截图/日志、耗时、结果）；
-  - `fastboot getvar all`、`getprop` 关键字段在回滚前后一致；
+  - 第二人按 SOP 可独立完成内存启动/DSU 进出；
+  - 全程 0 分区写入（命令审计/日志）；
+  - 退出后 stock `sys.boot_completed=1`、指纹/IMEI/基带/传感器正常；
   - 业主签字确认红线流程。
-- **状态**：待整改。
+- **状态**：待整改（SOP v2.0 已编写，演练未执行）。
 
 #### SEC-002 安全补丁严重过期
 

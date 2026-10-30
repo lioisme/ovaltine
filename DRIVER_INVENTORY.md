@@ -8,7 +8,7 @@
 | 设备 | OnePlus Ace Pro / 10T，codename `ovaltine`，CPH2415 |
 | 目标 | LineageOS 22.1（Android 15） |
 | 依据 | 业主驱动原则；`AUDIT_REPORT.md`；`HARDWARE_INVENTORY.md`；baseline/构建树源码；EX01 dump |
-| 状态 | **清单为审计草案；开源/闭源分类与许可证需 SPDX/SBOM 二次确认；所有“可用”需 E4 实测** |
+| 状态 | **清单为审计草案；开源/闭源分类与许可证需 SPDX/SBOM 二次确认；所有“可用”需 E4 实测；测试仅限内存启动/DSU（DECISION-006）** |
 
 ---
 

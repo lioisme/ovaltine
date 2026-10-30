@@ -3,14 +3,20 @@
 | 项 | 值 |
 |---|---|
 | 文档编号 | OVL-PLAN-2026-10-31 |
-| 版本 | 1.0 |
+| 版本 | 1.1 |
 | 编制日期 | 2026-10-31 |
-| 依据 | 业主七项要求；《开发作业临时约法》；`AUDIT_REPORT.md`（OVL-AUDIT-2026-10-31） |
+| 依据 | 业主七项要求；业主 2026-10-31 强制约束；《开发作业临时约法》；`AUDIT_REPORT.md`（OVL-AUDIT-2026-10-31） |
 | 目标设备 | OnePlus Ace Pro / 10T，codename `ovaltine`，CPH2415（全球/欧盟） |
 | 目标系统 | LineageOS 22.1（DECISION-001；22.2 仅探针目标） |
-| 当前状态 | **审计完成；构建未成功；禁止刷机/发布**（NO-GO） |
+| 当前状态 | **审计完成；构建未成功；禁止真实刷机；发布 NO-GO** |
 | 任务负责人 | 业主指定；技术执行：Agent/构建工程师/测试工程师 |
 | 文档状态 | 生效；整改执行与状态回填以本文件为准 |
+
+> **2026-10-31 业主强制约束（高于本文件其余描述）**
+>
+> 只允许**内存启动（`fastboot boot`）**或 **DSU** 进行调试/测试；**禁止真实刷入任何分区**（`fastboot flash`、`adb sideload`、`fastboot -w`、`dd` 写分区、recovery 写入、EDL/MSM 刷写等一律禁止）。
+> 本文件中所有“刷机/刷入/回 stock OTA/OTA 安装/切槽”步骤一律作废；相关任务、测试、验收改为“内存启动/DSU/重启退出”。
+> 该约束已记录为 `DECISIONS.md` DECISION-006，`SOP.md` v2.0 已按此重写。
 
 ---
 
@@ -35,25 +41,26 @@
 
 ### 1.1 总目标
 
-为 OnePlus 10T（CPH2415）交付一套可构建、可刷入、可回滚、可维护的 LineageOS 22.1 系统，使所有硬件在真机上达到“可日常使用”的质量，并满足 Apple/Google 级工程质量与验收标准。
+为 OnePlus 10T（CPH2415）交付一套可构建、可在内存/DSU 中调试测试、可退出、可维护的 LineageOS 22.1 系统，使所有硬件在真机上达到“可日常使用”的质量，并满足 Apple/Google 级工程质量与验收标准。
 
 ### 1.2 成功定义（Definition of Done）
 
 同时满足以下条件才算项目完成：
 
 1. **可构建**：干净 Linux 主机 + 固定 manifest + 固定工具链，`brunch ovaltine` 退出 0，产物齐全，两次重建哈希一致或差异可解释。
-2. **可回滚**：关键分区已备份；stock Android 回滚 SOP 经第二人演练通过；anti-rollback/槽位策略明确。
-3. **可启动**：刷入后 `sys.boot_completed=1`，无 bootloop/panic，能进设置、通话、相机、网络。
+2. **可退出**：测试只通过内存启动/DSU；退出方式为重启或 DSU 丢弃，**不写系统分区**；DSU 写入的 userdata 已备份。
+3. **可启动**：内存启动/DSU 启动后 `sys.boot_completed=1`，无 bootloop/panic，能进设置、通话、相机、网络。
 4. **硬件全绿**：`HARDWARE_INVENTORY.md` 所有项有 E4 实测结果，0 未验证；P0/P1 缺陷 0。
 5. **测试全绿**：冒烟、压力、回归、全量、安全、OTA 测试 100% 通过；证据归档。
 6. **安全合规**：SPL 当前；SELinux Enforcing；发布 key 签名；无未授权 blob 分发；隐私脱敏。
 7. **可维护**：文档、SOP、驱动清单、变更记录、维护计划齐全；上游/ASB 跟踪机制运行。
-8. **业主验收**：业主签字确认“非官方、风险自担、可回滚”。
+8. **业主验收**：业主签字确认“非官方、风险自担、仅限内存/DSU 测试、不真实刷机”。
 
 ### 1.3 当前判定
 
 - 允许继续整改开发：**GO**
-- 允许刷机测试：**NO-GO**（SEC-001 未关闭前）
+- 允许内存启动/DSU 测试：**GO**（前提：构建产物存在、DSU/内存启动路径验证、userdata 已备份）
+- 允许真实刷机：**永久 NO-GO**（DECISION-006）
 - 允许发布/OTA：**NO-GO**
 
 ---
@@ -63,7 +70,7 @@
 ### 2.1 范围内
 
 - CPH2415（全球/欧盟）单机型；若业主需要 CPH2413/CPH2417，另立 variant 任务。
-- LineageOS 22.1（Android 15）设备树、common、kernel、vendor blobs、manifest、补丁、构建、刷机、测试、发布。
+- LineageOS 22.1（Android 15）设备树、common、kernel、vendor blobs、manifest、补丁、构建、内存启动/DSU 测试、发布。
 - 开源驱动优先，闭源 blob 仅作为不可替代的 vendor 组件，并记录来源/许可证/风险。
 - 硬件：SoC/CPU/GPU/显示/触摸/UDFPS/相机/音频/充电/电池/传感器/GPS/WiFi/BT/NFC/蜂窝/USB/振动/热。
 - 文档：审计、任务计划、SOP、硬件清单、驱动清单、测试报告、发布说明、维护计划。
@@ -82,10 +89,10 @@
 
 ### 3.1 不可违反的红线
 
-1. **随时可回到 Android**：未完成备份、未演练回滚、未确认 stock OTA 可用之前，禁止刷入任何非 stock 镜像。
+1. **禁止真实刷入任何分区**：只允许内存启动（`fastboot boot`）或 DSU；`fastboot flash`、`adb sideload`、`fastboot -w`、`dd` 写分区、recovery 写入、EDL/MSM 刷写一律禁止。
 2. **禁止重新上锁 bootloader**：自定义签名 + 上锁可能导致不可恢复的变砖；本项目全程保持解锁。
-3. **禁止未备份关键分区**：`persist`、`modemst1/2`、`fsg`、`fsc`、`oplusdycnvbk`、`metadata` 等一旦丢失，IMEI/基带校准/传感器校准可能永久损坏。
-4. **禁止 anti-rollback 违规**：不得刷入低于设备 ARB 版本的固件；不得用旧 stock 包“降级救砖”。
+3. **DSU 会写 userdata**：测试前必须备份用户数据；不得把 DSU 当作“零写入”。
+4. **禁止 anti-rollback 违规**：不得通过任何工具写入低于设备 ARB 版本的固件；不得用旧 stock 包“降级救砖”。
 5. **禁止擅自改系统网络配置**：代理/镜像只作用于构建工具环境，遵循《约法》网络篇。
 6. **禁止非 main 分支长期作业**：除业主书面要求外，所有提交进 `main`；短期实验分支必须当天合并/删除。
 7. **禁止把“未验证”写成“可用/完美”**：文档状态必须与证据等级一致。
@@ -96,6 +103,7 @@
 ### 3.2 技术约束
 
 - 主构建宿主：Linux x86_64，Ubuntu 22.04/24.04，32 GB RAM 起（建议 64 GB），250 GB+ 可用磁盘。
+- 测试执行：只允许内存启动/DSU；构建产物不得刷入设备。
 - 构建分支：LineageOS 22.1；基础 manifest 固定 commit；所有工程固定 commit。
 - 技术栈：AOSP/LineageOS 原生（Soong/Make、Bash、Python 工具链）；不引入同类 UI 框架/组件库。
 - 标准：AOSP 分区/AVB/OTA/SELinux 规范；Git 提交 `[<模块>] <动作> <对象>`；SPDX 许可证头。
@@ -111,14 +119,14 @@
 |---|---|---|
 | 构建 | 4 轮 brunch 均失败/被杀；无 `out/target/product/ovaltine` | 无镜像可测 |
 | 宿主 | macOS 26.7 Intel / 16 GB | 官方不支持；内存不足 |
-| 分支 | `bringup/ovaltine-lineage-22.1`，`main` 落后 7 提交 | 违反《约法》 |
+| 分支 | `main` 已 fast-forward；`bringup` 保留为历史归档 | Git 合规已恢复 |
 | remote | 无 | 无云端备份 |
-| 身份 | 构建 `CPH2417/Android 13`，设备 `CPH2415/Android 15` | 机型/版本错配 |
+| 身份 | 已静态修正为 `CPH2415/Android 15`；待 DSU/内存验证 | 待验证 |
 | common | 来自 10 Pro NE2213/Android 14 | 跨机型混用 |
 | blob pin | device 3/1415；common 0/1265 | 供应链完整性不足 |
-| 补丁 | HBM/wise-light/rear-ALS 对选定树不可应用 | 已知修复未生效 |
+| 补丁 | EX01 + 本轮 adaptation 已落 patch；旧 SIGSCAN 在 EX01 缺失，第二段待验证 | 部分修复，待验证 |
 | 安全 | SPL 2025-01/2025-04；testkey；AVB 关闭验证 | 发布阻断 |
-| 回滚 | 无 SOP/备份/演练 | 红线未落地 |
+| 退出 | SOP v2.0 已补（禁止刷机，仅内存/DSU）；演练未执行 | 红线未落地 |
 | 测试 | 0 执行 | 无法验收 |
 
 ---
@@ -131,15 +139,15 @@
 |---|---|---|---|---|
 | T-00 | 治理、仓库与文档基线 | P0 | 业主提供 remote | 进行中（本次审计提交） |
 | T-01 | Linux 构建宿主与工具链 | P0 | 硬件/云资源 | 阻塞（无 Linux 宿主） |
-| T-02 | 完整 manifest 与补丁自动化 | P0 | T-00 | 未开始 |
-| T-03 | 设备身份与 variant 对齐 | P0 | T-02 | 未开始 |
+| T-02 | 完整 manifest 与补丁自动化 | P0 | T-00 | 进行中（补丁脚本完成；完整 manifest 待 Linux） |
+| T-03 | 设备身份与 variant 对齐 | P0 | T-02 | 进行中（静态身份修复完成；DSU 验证待 T-10） |
 | T-04 | 基线选型复审与 common 对齐 | P0 | T-02 | 未开始 |
 | T-05 | Blob 溯源、SBOM 与校验 | P0 | T-03/T-04 | 未开始 |
-| T-06 | 已知修复端口（HBM/wise-light/ALS/aux/offline） | P0 | T-04 | 未开始 |
+| T-06 | 已知修复端口（HBM/wise-light/ALS/aux/offline） | P0 | T-04 | 进行中（HBM/名称替换/ALS 静态完成；SIGSCAN 待验证） |
 | T-07 | 内核/模块/设备树配套 | P1 | T-02 | 未开始 |
 | T-08 | 构建全绿与产物验证 | P0 | T-01/T-02/T-03/T-04/T-06 | 未开始 |
-| T-09 | 回滚 SOP、备份与演练 | P0 | T-08 | 未开始 |
-| T-10 | 刷机与首次启动 | P0 | T-08/T-09 | 未开始 |
+| T-09 | 内存/DSU 测试与退出演练 | P0 | T-08 | 未开始 |
+| T-10 | 内存启动/DSU 首次启动 | P0 | T-08/T-09 | 未开始 |
 | T-11 | 硬件矩阵实测 | P1 | T-10 | 未开始 |
 | T-12 | 冒烟/压力/回归/全量/CTS/OTA 测试 | P1 | T-11 | 未开始 |
 | T-13 | 安全加固与发布签名 | P1 | T-08/T-12 | 未开始 |
@@ -164,7 +172,7 @@
   - 干净 clone 后按 README 能定位审计报告、任务计划、SOP、硬件/驱动清单。
   - 所有脚本 `shellcheck` 通过（或明确豁免）；`apply-patches.sh` 幂等。
   - 文档事实一致：STATUS/BUILD_LOG/DECISIONS 不再互相矛盾。
-- **状态**：进行中（本次审计提交完成文档与部分 git 治理；remote/推送待业主）。
+- **状态**：进行中（文档/禁刷约束/静态适配已完成并提交；remote/推送待业主）。
 
 #### T-01 Linux 构建宿主与工具链
 
@@ -197,7 +205,7 @@
   - 全新目录 `repo init -m ...` + `repo sync` 成功；所有 HEAD 与 manifest 一致。
   - `apply-patches.sh` 在干净树上退出 0；二次执行不重复修改；`verify-tree.sh` 全断言通过。
   - 两次干净同步 + 补丁后的 `git diff` 哈希一致。
-- **状态**：未开始。
+- **状态**：进行中（`scripts/apply-patches.sh`、`scripts/verify-tree.sh` 已完成；完整 pinned manifest 待 Linux/T-01）。
 
 #### T-03 设备身份与 variant 对齐
 
@@ -208,12 +216,12 @@
   2. `lineage_ovaltine.mk`：`PRODUCT_MODEL=CPH2415`、`DeviceProduct=CPH2415`、`SystemName=CPH2415`；`TARGET_OTA_ASSERT_DEVICE`/`board-info.txt` 与实测一致。
   3. `PRODUCT_BUILD_PROP_OVERRIDES`：使用 CPH2415 EX01 真实 fingerprint，或按 Lineage 规范移除伪造；若保留，写明依赖它的 blob/服务与风险。
   4. 构建期断言：`PRODUCT_MODEL`、`PRODUCT_DEVICE`、fingerprint、SPL 与配置一致。
-  5. 刷机后 `getprop` 验证四件套：model/device/fingerprint/security_patch。
+  5. 内存/DSU 启动后 `getprop` 验证四件套：model/device/fingerprint/security_patch。
 - **验收标准**
   - 构建与真机 `ro.product.model=CPH2415`、`ro.product.device=OP5552L1`、`ro.product.name=CPH2415`。
   - `ro.build.fingerprint` 与选定策略一致；代码无 CPH2417/Android 13 残留。
   - OTA assert 通过；Play Integrity/运营商测试无身份相关失败（或记录预期限制）。
-- **状态**：未开始。
+- **状态**：进行中（静态身份修复完成；DSU/内存启动验证待 T-10）。
 
 #### T-04 基线选型复审与 common 对齐
 
@@ -224,7 +232,7 @@
   2. 建立“共享/覆盖/禁用”矩阵：每个 common 配置/blob 标注 10T 是否使用、来源、差异。
   3. 优先选择：官方开源 > 同硬件官方开源 > 兄弟硬件开源 > 社区适配 > 重写/桥接 > 逆向（按业主原则）。
   4. 若继续用 pjgowtham，必须把 10T 差异全部落到 device/ovaltine 或 patch，并逐项测试。
-  5. 记录决策（DECISION-006）与证据；不要用“同代”替代“同机型”。
+  5. 记录基线选型决策（使用下一个 DECISION 编号）与证据；不要用“同代”替代“同机型”。
 - **验收标准**
   - 决策记录含候选、证据、成本、风险、业主签字。
   - common 清单头注与目标机型一致；每个 common blob 有 10T 实际文件校验。
@@ -253,7 +261,7 @@
 - **需求**：10T 已知问题在最终选定树上真实生效，而不是“在另一个树上是祖先”。
 - **实现方向**
   1. HBM：在 pjgowtham `init.oplus.rc` 移除 hbm chown，追加 `chmod 0000`；`verify-tree.sh` 断言。
-  2. wise-light：在 pjgowtham `extract-files.py` 增加 `sensors.ssc.so` 二进制替换 + SIGSCAN；确认 `strings` 为 `android.sensor.light`。
+  2. wise-light：在 pjgowtham `extract-files.py` 增加 `sensors.ssc.so` 名称替换；旧 9 字节 SIGSCAN 在 EX01 blob 中不存在（count=0），第二段代码补丁需重新推导/验证，不得原样套用。
   3. rear-ALS：在 overlay 增加 `config_displayLightSensorType=qti.sensor.light_rear`（或按 10T 实测）。
   4. aux camera：确认 device `extract-files.py` 的 `CameraHWConfiguration.config` 修复生效；补丁文档改为“实现位置”。
   5. offline charging：确认 pjgowtham HEAD 已包含；从“待应用”清单移除。
@@ -262,7 +270,7 @@
   - `verify-tree.sh` 全部断言通过；`git apply --check` 无失败补丁。
   - 100 次 UDFPS 解锁 0 失败；自动亮度曲线通过；6 相机 ID 可用；关机充电通过。
   - 文档不再出现“祖先即生效”的误导表述。
-- **状态**：未开始。
+- **状态**：进行中（HBM/名称替换/ALS 静态完成；SIGSCAN 第二段待验证）。
 
 #### T-07 内核/模块/设备树配套
 
@@ -295,36 +303,36 @@
   - `out/target/product/ovaltine` 存在且归档。
 - **状态**：未开始。
 
-#### T-09 回滚 SOP、备份与演练
+#### T-09 内存/DSU 测试与退出演练
 
-- **关联发现**：SEC-001。
-- **需求**：任何时候都能回到 Android；这是业主红线。
+- **关联发现**：SEC-001（按 DECISION-006 转为“无分区写入”方案）。
+- **需求**：在不刷入任何分区的前提下，能安全进入内存启动/DSU 测试，并能随时退出回 stock。
 - **实现方向**
-  1. 编写 `SOP.md` 回滚章节：备份 → 刷机 → 失败判定 → 回 stock → 救砖 → 验证。
-  2. 备份关键分区（见 §3.1）；两份介质；SHA256。
-  3. 记录 stock OTA `CPH2415_15.0.0.1901(EX01)` 的本地路径与校验；记录 `fastboot getvar all`、`current-slot`、`--set-active`。
-  4. 记录 anti-rollback：设备当前 ARB/固件版本；禁止降级。
-  5. 在刷 system 前，先演练“切槽/回 stock boot”；在刷完整系统后，再演练一次完整回 stock。
+  1. 按 `SOP.md` v2.0 执行：只允许 `fastboot boot` 与 DSU；禁止 `fastboot flash`/sideload/`fastboot -w`/`dd` 写分区/EDL。
+  2. 记录 stock 状态：`fastboot getvar all`、`current-slot`、`ro.build.fingerprint`、SPL、ARB。
+  3. 备份 userdata（DSU 会写 userdata）；记录 SHA256/介质。
+  4. 演练 `fastboot boot` 进入/退出；演练 DSU 安装/启动/丢弃；记录耗时/日志/结果。
+  5. 记录“退出后 stock 指纹/IMEI/基带/指纹传感器正常”；不得用刷机修复。
   6. 禁止重新上锁；文档加粗警告。
 - **验收标准**
-  - 第二人按 SOP 可独立完成回滚；记录命令/日志/耗时/结果。
-  - 备份可恢复；回滚后 `sys.boot_completed=1`、IMEI/基带/指纹/传感器正常。
+  - 第二人按 SOP 可独立完成内存启动/DSU 进出；记录命令/日志/耗时/结果。
+  - 全程 0 分区写入（可用操作日志/命令审计证明）；DSU 丢弃后 stock 正常。
   - 业主签字确认红线流程。
-- **状态**：未开始（SEC-001 未关闭前禁止刷机）。
+- **状态**：未开始（DECISION-006 生效；禁止真实刷机）。
 
-#### T-10 刷机与首次启动
+#### T-10 内存启动/DSU 首次启动
 
 - **关联发现**：SEC-001、TST-004、DOC-005。
-- **需求**：安全刷入并可首次启动；失败可回滚。
+- **需求**：在不写系统分区的前提下启动测试镜像，验证首启与核心功能。
 - **实现方向**
-  1. 按 SOP 刷入 boot/vendor_boot/dtbo/vbmeta（必要时）→ recovery → format data → system。
+  1. 路径 A：`fastboot boot boot.img`（仅 boot 侧验证，不写分区）；路径 B：DSU 安装 system/GSI（写 userdata，需备份）。
   2. 首启采集：`adb wait-for-device`、`getprop sys.boot_completed`、`dmesg`、`logcat`、`getprop` 全量。
-  3. 验证槽位、AVB 状态、加密、指纹录入、相机、通话、WiFi。
-  4. 任何 bootloop：立即按回滚 SOP 回 stock，不在失败状态反复试。
+  3. 验证 DSU/内存启动身份、SELinux、指纹录入、相机、通话、WiFi。
+  4. 任何 bootloop：重启回 stock 或丢弃 DSU；**不得刷机/EDL**。
 - **验收标准**
   - `sys.boot_completed=1`；无 bootloop/panic；首次设置可完成。
   - 关键硬件冒烟通过；日志归档。
-  - 失败时可在 30 分钟内回 stock（演练目标）。
+  - 退出后 stock 可在 5 分钟内恢复（重启/DSU 丢弃）。
 - **状态**：未开始。
 
 #### T-11 硬件矩阵实测
@@ -378,15 +386,15 @@
 #### T-14 发布、OTA 与长期维护
 
 - **关联发现**：GOV-007、ARCH-004/005、DOC-007。
-- **需求**：可持续发布/更新/回滚，不是一次性刷机。
+- **需求**：可持续发布/更新/退出，不是一次性操作。
 - **实现方向**
   1. 版本号 `22.1-YYYYMMDD-ovaltine`；tag；release notes；known issues。
-  2. 生成 signed OTA；本地/服务器分发；校验和；回滚说明。
+  2. 生成 signed OTA（归档/分析用，不安装）；校验和；DSU/退出说明。
   3. 维护计划：月度上游扫描、ASB、依赖升级、设备树 rebase、回归。
   4. 发布门禁：G5 清单逐项签字。
 - **验收标准**
   - 每个发布有 tag/OTA/SHA256/release notes/known issues。
-  - OTA 可安装/可回滚；维护计划执行有记录。
+  - DSU 可安装/可丢弃；OTA 归档可校验；维护计划执行有记录。
   - 业主签字发布。
 - **状态**：未开始。
 
@@ -403,7 +411,7 @@
   - 文档齐全、无事实矛盾、无未脱敏数据。
   - 任一业主要求可追到任务/测试/证据。
   - 新成员按 README/SOP 可在 1 天内完成环境搭建与首次构建（有 Linux 宿主前提下）。
-- **状态**：进行中（本次新增审计/计划/SOP/清单；运行时内容待后续回填）。
+- **状态**：进行中（审计/计划/SOP/清单/ADAPTATION_LOG/静态适配已完成；运行时内容待后续回填）。
 
 ---
 
@@ -414,13 +422,13 @@
 | 维度 | 目标 | 执行时机 | 通过标准 |
 |---|---|---|---|
 | 构建测试 BT | 构建可复现、产物完整 | 每次提交/T-08 | 退出 0；产物齐全；哈希一致 |
-| 冒烟 SM | 系统能启动、核心功能可用 | 每次刷机/T-10 | 全部 SM 通过；无 bootloop |
+| 冒烟 SM | 系统能启动、核心功能可用 | 每次内存/DSU 启动/T-10 | 全部 SM 通过；无 bootloop |
 | 硬件 HW | 所有硬件可用 | T-11 | 15 类全部通过；0 未验证 |
 | 压力 ST | 长稳/热/功耗/无崩溃 | T-12 | 72h 无重启/崩溃/数据丢失 |
 | 回归 RG | 变更不破坏已通过项 | 每次补丁/配置变更 | 受影响项 + 冒烟 100% |
 | 全量 FT | 发布前全量 | T-12 | 全部用例 100% |
 | 安全 SC | SELinux/AVB/SPL/密钥 | T-13 | 全绿 |
-| OTA OT | 更新/回滚/A-B | T-12/T-14 | 安装/回滚/数据保留通过 |
+| DSU/退出 OT | DSU 安装/启动/丢弃/重启 | T-12/T-14 | 进入/退出成功；stock 恢复；0 分区写入 |
 | 复现 RF | 干净重建/哈希 | T-08/T-12 | 哈希一致或差异可解释 |
 
 ### 6.2 构建测试（BT）
@@ -438,7 +446,7 @@
 
 | ID | 测试 | 步骤 | 预期 |
 |---|---|---|---|
-| SM-01 | 首次启动 | 刷机后等待 | `sys.boot_completed=1`，无 bootloop |
+| SM-01 | 首次启动 | 内存/DSU 启动后等待 | `sys.boot_completed=1`，无 bootloop |
 | SM-02 | 设置向导 | 完成基础设置 | 可进桌面，无 crash/ANR |
 | SM-03 | ADB | `adb devices`、`adb shell` | 授权后可进入 |
 | SM-04 | 通话 | SIM1 拨号/接听 | 通话建立，音频双向 |
@@ -492,7 +500,7 @@
 | FT-01 | 硬件矩阵全量 | 发布前 | 100% 通过 |
 | FT-02 | 系统功能全量 | 发布前 | 100% 通过 |
 | FT-03 | 安全全量 | 发布前 | 100% 通过 |
-| FT-04 | OTA/回滚 | 发布前 | 100% 通过 |
+| FT-04 | DSU/退出 | 发布前 | 100% 通过 |
 | FT-05 | 性能/热/续航 | 发布前 | 达到阈值 |
 
 ### 6.7 安全（SC）
@@ -508,15 +516,15 @@
 | SC-07 | 指纹/Keymaster | 正常工作 |
 | SC-08 | 隐私扫描 | 公共文档无序列号/IMEI/MAC |
 
-### 6.8 OTA/回滚（OT）
+### 6.8 DSU/退出（OT）
 
 | ID | 测试 | 预期 |
 |---|---|---|
-| OT-01 | 生成 signed OTA | 成功 |
-| OT-02 | A→B 安装 | 成功；槽位切换 |
-| OT-03 | B→A 回滚 | 成功；数据保留 |
-| OT-04 | 失败注入 | 可回滚；不 brick |
-| OT-05 | 回 stock Android | 成功；IMEI/基带/指纹正常 |
+| OT-01 | 生成 DSU 系统镜像 | 成功；SHA256 记录 |
+| OT-02 | DSU 安装/启动 | 成功；`sys.boot_completed=1` |
+| OT-03 | DSU 丢弃/重启 | 成功回 stock；userdata 保留/可恢复 |
+| OT-04 | 失败注入/中止 | 可重启回 stock；0 分区写入 |
+| OT-05 | 退出后 stock 验证 | `ro.build.fingerprint` 恢复；IMEI/基带/指纹正常 |
 
 ### 6.9 复现（RF）
 
@@ -535,8 +543,8 @@
 | M0 | 审计完成、计划生效 | `AUDIT_REPORT`/`TASK_PLAN` 评审通过 | **已完成（本次）** |
 | M1 | 治理基线关闭 | T-00 验收；main/remote/文档/脚本 | 进行中 |
 | M2 | Linux 构建全绿 | T-01/T-02/T-08 验收；产物齐全 | 未开始（阻塞） |
-| M3 | 回滚演练通过 | T-09 验收；第二人独立执行 | 未开始 |
-| M4 | 首次启动成功 | T-10 验收；SM 全绿 | 未开始 |
+| M3 | 内存/DSU 进出演练通过 | T-09 验收；第二人独立执行；0 分区写入 | 未开始 |
+| M4 | 内存/DSU 首次启动成功 | T-10 验收；SM 全绿 | 未开始 |
 | M5 | 硬件矩阵全绿 | T-11 验收；HW 100% | 未开始 |
 | M6 | 全量测试全绿 | T-12 验收；ST/RG/FT/SC/OT 100% | 未开始 |
 | M7 | 发布 | T-13/T-14 验收；签名/OTA/文档 | 未开始 |
@@ -550,9 +558,9 @@
 | 风险 | 概率 | 影响 | 触发 | 缓解 | 负责人 |
 |---|---|---|---|---|---|
 | 无 Linux 宿主导致项目停滞 | 高 | 高 | T-01 无法开始 | 业主提供机器/云资源；mac 仅实验 | 业主/构建 |
-| 刷机后无法回 Android | 中 | 极高 | 未备份/未演练 | T-09 先行；禁止未演练刷机 | 测试/业主 |
+| 内存/DSU 测试无法退出 | 中 | 高 | DSU/内存启动异常 | T-09 先行；重启/DSU 丢弃；禁止刷机修复 | 测试/业主 |
 | CPH2415 与 2417/NE2213 blob 不兼容 | 高 | 高 | 相机/音频/充电异常 | T-04/T-05 逐项对齐；回退 | 驱动 |
-| super/userdata 尺寸不符 | 中 | 高 | 刷机失败/变砖 | 设备实测 `blockdev`；对比分区表 | 构建 |
+| super/userdata 尺寸不符 | 中 | 高 | DSU/内存测试失败 | 设备实测 `blockdev`；对比分区表 | 构建 |
 | 内核/模块 ABI 不匹配 | 中 | 高 | 模块加载失败 | T-07 三元组配套；modinfo | 内核 |
 | 22.1 安全债扩大 | 高 | 高 | 新 CVE | T-13 ASB 回移/分支重评 | 安全 |
 | 闭源 blob 法律风险 | 中 | 高 | 公开发布 | T-05 法务/SBOM；默认不分发 | 业主/法务 |
@@ -588,18 +596,17 @@
 - `scripts/verify-tree.sh`
 - `scripts/build.sh`
 - `scripts/collect-artifacts.sh`
-- `scripts/flash.sh`
-- `scripts/rollback.sh`
+- `scripts/dsu-test.sh`（仅 DSU 安装/启动/丢弃，不写系统分区）
 - `scripts/test.sh`
 
 ### 9.3 构建/测试产物
 
 - 完整镜像集（boot/dtbo/recovery/vbmeta*/vendor_boot/system*/vendor*/odm/super_empty）
-- OTA zip（signed）
+- OTA zip（signed；归档/分析用，**不安装、不刷入**）
 - `SHA256SUMS`、`build-info.txt`、`source-manifest.xml`
 - 测试报告（SM/HW/ST/RG/FT/SC/OT/RF）
 - 日志（build/dmesg/logcat/update_engine）
-- 回滚演练记录
+- 内存/DSU 进出演练记录
 
 ### 9.4 证据
 
@@ -628,7 +635,7 @@
 1. 每完成一个原子动作立即更新本文件对应任务状态与证据路径；禁止事后补写。
 2. 每次提交信息遵循 `[<模块>] <动作> <对象>`；提交正文引用发现 ID/任务 ID。
 3. 每次里程碑更新 `STATUS.md`、`CHANGELOG.md`、`KNOWN_ISSUES.md`。
-4. 任何 P0/P1 变更必须双人复核；任何刷机动作必须有回滚预案。
+4. 任何 P0/P1 变更必须双人复核；任何内存/DSU 测试必须有退出预案；禁止任何刷机动作。
 5. 文档版本号递增；保留变更记录。
 
 ### 10.3 评审节奏
@@ -647,8 +654,8 @@
 |---|---|---|---|---|
 | 1 全硬件 LineageOS | T-04/T-06/T-11 | HW-01～15 | HARDWARE_INVENTORY + 测试报告 | 未开始 |
 | 2 社区项目质量不一 | T-04 | 文档评审 | BASELINE_EVALUATION 修订 | 未开始 |
-| 3 红线可回 Android | T-09 | OT-05 | 回滚演练记录 | 未开始 |
-| 4 adb/fastboot | T-09/T-10 | SM-03/OT-05 | SOP + 日志 | 未开始 |
+| 3 红线：随时可回 Android | T-09 | OT-05 | 内存/DSU 退出演练记录（0 分区写入） | 未开始 |
+| 4 adb/fastboot | T-09/T-10 | SM-03/OT-05 | SOP v2.0 + 日志 | 未开始 |
 | 5 驱动开源优先 | T-04/T-05 | 文档评审 | DRIVER_INVENTORY + SBOM | 未开始 |
 | 6 复用社区 10T | T-04 | 文档评审 | 采纳/不采纳记录 | 部分 |
 | 7 SOP/硬件/驱动清单 | T-15 | 文档评审 | SOP/HARDWARE/DRIVER | 草案完成 |
@@ -672,7 +679,7 @@
 
 ### 12.1 优先级/严重度
 
-- P0：阻断刷机/发布/红线；必须立即整改。
+- P0：阻断内存/DSU 测试/发布/红线；必须立即整改。
 - P1：严重功能/安全/合规；发布前关闭或书面风险接受。
 - P2：中等技术债；里程碑前关闭。
 - P3：改进项；backlog。
@@ -696,4 +703,4 @@
 
 ---
 
-**执行提示**：本计划不是“愿望清单”，而是门禁化的执行合同。T-09 未完成前，任何刷机都是违规；T-08 未完成前，任何硬件“可用”结论都是推断；T-12 未完成前，任何“发布”都是冒险。请按 M0→M7 顺序推进，并在每次状态变化时回填本文件与 `STATUS.md`。
+**执行提示**：本计划不是“愿望清单”，而是门禁化的执行合同。T-09 未完成前，任何内存/DSU 测试都是违规；T-08 未完成前，任何硬件“可用”结论都是推断；T-12 未完成前，任何“发布”都是冒险。全程禁止真实刷入任何分区。请按 M0→M7 顺序推进，并在每次状态变化时回填本文件与 `STATUS.md`。

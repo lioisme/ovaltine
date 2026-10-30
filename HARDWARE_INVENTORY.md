@@ -7,7 +7,7 @@
 | 日期 | 2026-10-31 |
 | 设备 | OnePlus Ace Pro / 10T，codename `ovaltine`，报告型号 CPH2415 |
 | 证据来源 | `DEVICE_REPORT.md`、`probes/device_scan/*`、`CPH2415_15.0.0.1901_EX01.zip`、`vendor_extract/dump`、baseline 源码 |
-| 状态说明 | **本清单是硬件识别与测试台账，不是“已可用”声明。除特别标注 E4 外，均为 E1/E2 证据，功能状态待实测。** |
+| 状态说明 | **本清单是硬件识别与测试台账，不是“已可用”声明。除特别标注 E4 外，均为 E1/E2 证据，功能状态待实测。测试执行方式仅限内存启动/DSU，禁止真实刷机（DECISION-006）。** |
 | 关联 | `AUDIT_REPORT.md`、`TASK_PLAN.md`、`DRIVER_INVENTORY.md` |
 
 ---

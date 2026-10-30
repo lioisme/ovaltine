@@ -1,0 +1,35 @@
+diff --git a/BoardConfig.mk b/BoardConfig.mk
+index de7ed8f..dad6b8f 100644
+--- a/BoardConfig.mk
++++ b/BoardConfig.mk
+@@ -16,7 +16,6 @@ TARGET_KERNEL_CONFIG += vendor/oplus/ovaltine.config
+ TARGET_SCREEN_DENSITY := 480
+ 
+ # Partitions
+-BOARD_ONEPLUS_DYNAMIC_PARTITIONS_SIZE := 5637144572
+ BOARD_SUPER_PARTITION_SIZE := 11274289152
+ 
+ # Properties
+diff --git a/lineage_ovaltine.mk b/lineage_ovaltine.mk
+index 2f5acea..2777592 100644
+--- a/lineage_ovaltine.mk
++++ b/lineage_ovaltine.mk
+@@ -19,14 +19,13 @@ PRODUCT_NAME := lineage_ovaltine
+ PRODUCT_DEVICE := ovaltine
+ PRODUCT_MANUFACTURER := OnePlus
+ PRODUCT_BRAND := OnePlus
+-PRODUCT_MODEL := CPH2417
++PRODUCT_MODEL := CPH2415
+ 
+ PRODUCT_GMS_CLIENTID_BASE := android-oneplus
+ 
+ PRODUCT_BUILD_PROP_OVERRIDES += \
+-    BuildDesc="qssi-user 13 TP1A.220905.001 1690541595415 release-keys" \
+-    BuildFingerprint=OnePlus/CPH2417/OP5552L1:13/SKQ1.221119.001/S.123ec2a_6b801_6ff30:user/release-keys \
++    BuildFingerprint=OnePlus/CPH2415/OP5552L1:15/AP3A.240617.008/S.245f058-1f931-1f92d:user/release-keys \
+     DeviceName=OP5552L1 \
+-    DeviceProduct=CPH2417 \
++    DeviceProduct=CPH2415 \
+     SystemDevice=OP5552L1 \
+-    SystemName=CPH2417
++    SystemName=CPH2415

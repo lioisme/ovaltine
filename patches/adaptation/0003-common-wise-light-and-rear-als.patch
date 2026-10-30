@@ -1,0 +1,28 @@
+diff --git a/extract-files.py b/extract-files.py
+index 28880c3..1ecb789 100755
+--- a/extract-files.py
++++ b/extract-files.py
+@@ -88,6 +88,11 @@ blob_fixups: blob_fixups_user_type = {
+         .add_needed('android.hardware.security.rkp-V1-ndk.so'),
+     ('vendor/lib64/libqcrilNr.so', 'vendor/lib64/libril-db.so'): blob_fixup()
+         .binary_regex_replace(rb'persist\.vendor\.radio\.poweron_opt', rb'persist.vendor.radio.poweron_ign'),
++    # CPH2415 EX01's sensors.ssc.so does not contain the legacy 9-byte SIGSCAN
++    # pattern used by 42cc1f8; only the length-safe sensor name replacement is
++    # applied. The second-stage code patch must be re-derived and verified.
++    'vendor/lib64/sensors.ssc.so': blob_fixup()
++        .binary_regex_replace(rb'qti\.sensor\.wise_light', b'android.sensor.light\x00'),
+     'vendor/lib64/vendor.libdpmframework.so': blob_fixup()
+         .add_needed('libhidlbase_shim.so'),
+ }  # fmt: skip
+diff --git a/overlay/OPlusFrameworksResCommon/res/values/config.xml b/overlay/OPlusFrameworksResCommon/res/values/config.xml
+index e8be969..49b8398 100644
+--- a/overlay/OPlusFrameworksResCommon/res/values/config.xml
++++ b/overlay/OPlusFrameworksResCommon/res/values/config.xml
+@@ -166,4 +166,7 @@
+     <!-- Whether the device enable the non-standalone (NSA) mode of 5G NR.-->
+     <bool name="config_telephony5gNonStandalone">true</bool>
+ 
++    <!-- Use the rear ALS for auto-brightness; the under-display wise light is not ideal. -->
++    <string name="config_displayLightSensorType" translatable="false">qti.sensor.light_rear</string>
++
+ </resources>
