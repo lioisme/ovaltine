@@ -147,8 +147,14 @@ VERIFY OK
 
 - `build/soong/soong_ui.bash` 的 Darwin 分支在 `set -u` 下引用未定义 `$T`；改为用脚本路径推导 `SOONG_TOP`。
 - 导出 `patches/macos-build/0003-soong-ui-darwin-trace-top.patch`；`scripts/apply-patches.sh` 在 `APPLY_MAC_PATCHES=1` 且 Darwin 时应用。
-- `bash -n build/soong/soong_ui.bash` 通过。
+- `bash -n build/soong/soong_ui.bash` 通过；`breakfast ovaltine` 已不再出现 `$T: unbound variable`。
 - 新增 `patches/macos-build/README.md`，明确 macOS 仅为实验环境、0002 全局跳过 Go 测试的已知缺陷。
+
+### 2.10 macOS `repolastsync` 的 GNU date 兼容
+
+- `vendor/lineage/build/envsetup.sh` 的 `repolastsync` 在 Darwin 使用 `gdate`/`gstat`，缺失时输出 unknown；Linux 保持原行为。
+- 导出 `patches/macos-build/0004-lineage-envsetup-portable-date.patch` 并接入 `apply-patches.sh`（Darwin + `APPLY_MAC_PATCHES=1`）。
+- 残留：`build/make/core/version_util.mk` / `main.mk` 仍使用 GNU `date -d`，`breakfast` 仍会打印 `date: illegal option -- d`，但不阻塞；AUDIT BLD-006 仍未关闭。
 
 ---
 

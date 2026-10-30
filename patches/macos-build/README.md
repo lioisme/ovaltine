@@ -7,6 +7,12 @@
 | `0001-soong-cc-config-allow-macos-sdk-26.patch` | `build/soong` | 在 `darwin_host.go` 的 SDK allowlist 增加 15/25/26 | 放宽了 SDK 版本检查；需确认工具链行为 |
 | `0002-blueprint-bootstrap-skip-go-tests-on-darwin.patch` | `build/blueprint` | 将 bootstrap Go `test` 规则改为 `touch $out` | **不是 darwin-only**，会全局跳过 Go 测试；Linux/发布禁用（AUDIT BLD-004） |
 | `0003-soong-ui-darwin-trace-top.patch` | `build/soong` | 修复 `soong_ui.bash` 在 `set -u` 下引用未定义 `$T` 的问题；用脚本路径推导 TOP | 仅 Darwin 分支；Linux 不受影响 |
+| `0004-lineage-envsetup-portable-date.patch` | `vendor/lineage` | `repolastsync` 在 Darwin 用 `gdate`/`gstat`，缺失时输出 unknown，避免 GNU `date -d` 报错 | 仅影响展示函数；Linux 保持原行为 |
+
+## 已知残留
+
+- `build/make/core/version_util.mk` 与 `build/make/core/main.mk` 仍使用 GNU `date -d`；`breakfast` 会打印 `date: illegal option -- d`，但当前不阻塞 `breakfast`/soong 启动。若要彻底消除，需要单独补丁或 portable date wrapper（AUDIT BLD-006 仍未关闭）。
+- `0002` 全局跳过 Go 测试，不能用于 Linux/发布构建。
 
 ## 应用
 

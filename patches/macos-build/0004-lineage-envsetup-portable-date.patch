@@ -1,0 +1,25 @@
+diff --git a/build/envsetup.sh b/build/envsetup.sh
+index f1d44b2e..e0000d74 100644
+--- a/build/envsetup.sh
++++ b/build/envsetup.sh
+@@ -717,8 +717,18 @@ function cmka() {
+ 
+ function repolastsync() {
+     RLSPATH="$ANDROID_BUILD_TOP/.repo/.repo_fetchtimes.json"
+-    RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
+-    RLSUTC=$(date -d "$(stat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
++    if [ "$(uname -s)" = "Darwin" ]; then
++        if command -v gdate >/dev/null 2>&1 && command -v gstat >/dev/null 2>&1; then
++            RLSLOCAL=$(gdate -d "$(gstat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
++            RLSUTC=$(gdate -d "$(gstat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
++        else
++            RLSLOCAL="unknown"
++            RLSUTC="unknown"
++        fi
++    else
++        RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
++        RLSUTC=$(date -d "$(stat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
++    fi
+     echo "Last repo sync: $RLSLOCAL / $RLSUTC"
+ }
+ 
