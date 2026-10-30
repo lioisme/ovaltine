@@ -7,7 +7,7 @@
 | 全量构建 | `.github/workflows/aosp-build.yml` |
 | 设备写入 | **无**（工作流不调用 fastboot/adb 写设备） |
 | 约束 | DECISION-006：只允许内存启动/DSU；本 CI 只构建，不刷机 |
-| 当前状态 | `static-ci` **passing**（run 41104019019 @ `442350c`）；`aosp-build` 尚未运行（缺大 runner + vendor secret） |
+| 当前状态 | `static-ci` **passing**（run 41105251333 @ `a76644e`）；`aosp-build` 尚未运行（缺大 runner + vendor secret） |
 
 ---
 
@@ -119,7 +119,7 @@ gh workflow run aosp-build.yml \
 - 脚本中不存在 `fastboot flash`/`adb sideload`/`fastboot -w`/`dd` 写分区等禁刷命令；
 - 通过 `actions/checkout` 拉取两棵 pinned 设备树（device ovaltine @ `59052db`、common @ `258dbbd`），应用 EX01 + adaptation 补丁，跑 `verify-tree.sh`。
 
-**当前结果**：passing，见 https://github.com/lioisme/ovaltine/actions/runs/41104019019 。
+**当前结果**：passing，见 https://github.com/lioisme/ovaltine/actions/runs/41105251333 。
 
 > 首次运行曾失败（raw git clone + 未使用的 apt 依赖）；已改为 `actions/checkout` pinned ref，并移除无关依赖后通过。
 

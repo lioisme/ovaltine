@@ -165,7 +165,7 @@ VERIFY OK
 - 新增 `.github/workflows/aosp-build.yml`：手动全量构建；要求 larger/self-hosted runner（32 GB+ RAM、400 GB+ 磁盘），vendor 归档通过 `VENDOR_ARCHIVE_URL`/`VENDOR_ARCHIVE_SHA256` secrets 提供；标准 runner preflight 直接拒绝。
 - 新增 `CI.md` 说明标准 GitHub runner 无法全量构建 AOSP、vendor 归档如何制作/配置、artifact 策略（默认只上传日志/校验和，不上传 system/vendor/OTA）。
 - 当前仍缺 vendor 归档 secret 与足够大的 runner，因此 `aosp-build` 尚未运行；`static-ci` 将在首次 push 后自动运行。
-- **static-ci 结果**：首次失败（raw `git clone` + 未使用的 apt 依赖）；改为 `actions/checkout` 拉取 pinned ref、移除无关 apt 包后，run 41104019019 @ `442350c` **success**。badge: passing。
+- **static-ci 结果**：首次失败（raw `git clone` + 未使用的 apt 依赖）；改为 `actions/checkout` 拉取 pinned ref、移除无关 apt 包后，run 41105251333 @ `a76644e` **success**。badge: passing。
 - 公开仓库远端：`origin` = `ssh://git@ssh.github.com:443/lioisme/ovaltine.git`；已推送 `main` 与 `audit-2026-10-31`。
 
 ---

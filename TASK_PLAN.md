@@ -190,7 +190,7 @@
   - 工具版本与 `tool-versions.txt` 一致；新机器按脚本可复现。
   - macOS 实验构建不阻塞 Linux 发布；mac 补丁不在 Linux 上生效。
   - `static-ci` 在 GitHub 上全绿；`aosp-build` 产出 `build.log`/`SHA256SUMS`。
-- **状态**：进行中（`static-ci` 已通过 run 41104019019；`aosp-build` 待大 runner + vendor 归档 secret）。
+- **状态**：进行中（`static-ci` 已通过 run 41105251333；`aosp-build` 待大 runner + vendor 归档 secret）。
 
 #### T-02 完整 manifest 与补丁自动化
 
