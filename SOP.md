@@ -100,8 +100,8 @@
 ### 3.2 初始化 repo
 
 ```bash
-repo init -u https://github.com/LineageOS/android.git -b lineage-22.1 \
-  -m manifests/lineage-22.1-<date>.xml
+repo init -u https://github.com/lioisme/ovaltine.git -b main \
+  -m manifests/lineage-22.1-20261031.xml
 repo sync -c -j8 --no-clone-bundle --no-tags
 ```
 
@@ -116,6 +116,13 @@ export AOSP_ROOT=/path/to/aosp
 ```
 
 `apply-patches.sh` 先 `git apply --check`，已应用则跳过，失败即停；`verify-tree.sh` 断言 CPH2415 身份、HBM `chmod 0000`、wise-light/ALS、EX01 适配等关键行。
+
+### 3.4 GitHub Actions 构建
+
+- `static-ci.yml` 每次 push 自动运行：补丁可应用性、清单/脚本/禁刷校验。
+- `aosp-build.yml` 手动运行：需要 larger runner 或 self-hosted Linux runner（32 GB+ RAM、400 GB+ 磁盘）；标准 `ubuntu-latest` 资源不足，preflight 会拒绝。
+- vendor blob 不入公开仓库；通过 `VENDOR_ARCHIVE_URL` / `VENDOR_ARCHIVE_SHA256` secrets 提供私有归档。
+- 详见 `CI.md`。CI 只构建/测试，不写设备分区。
 
 ---
 

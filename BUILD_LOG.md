@@ -100,7 +100,7 @@ API 用量记录：GitHub REST 未认证限额 60/小时，探针共消耗 31 �
 
 ```
 adb：platform-tools 37.0.1（官方 zip 直装 ~/tools/android-platform-tools，避免 brew 源码编译）
-设备：已脱敏 = CPH2415（OP5555L1 主板），已授权
+设备：CPH2415（序列号已脱敏），已授权
 关键读数（原始数据 probes/device_scan/*.txt）：
   - 构建 S.245f058-1f931-1f92d（与底包 OTA post-build 一致）
   - 内核 5.10.236-android12-9-o-g55571f3ffcfa（与 boot.img strings 一致）

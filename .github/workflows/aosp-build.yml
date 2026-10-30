@@ -1,0 +1,158 @@
+name: aosp-build
+
+# Full LineageOS build. This deliberately does NOT run on GitHub-hosted
+# standard runners: AOSP 22.1 needs >=30 GB RAM and >=350 GB free disk.
+# Use a GitHub larger runner (if your plan supports it) or a self-hosted
+# Linux runner with the label passed in `runner_label`.
+#
+# Vendor blobs are NOT in this public repo. Set repository secrets:
+#   VENDOR_ARCHIVE_URL     - private URL to vendor-oneplus.tar.zst
+#   VENDOR_ARCHIVE_SHA256  - SHA-256 of that archive
+# The archive must contain `oneplus/` at its top level (i.e. vendor/oneplus/...).
+#
+# This workflow never writes to a device and never invokes fastboot/adb.
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_label:
+        description: "Runner label (self-hosted or larger runner, e.g. aosp-builder)"
+        required: true
+        default: "aosp-builder"
+      upload_images:
+        description: "Upload boot/dtbo/recovery/vbmeta images (public repo: keep false)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aosp-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build lineage_ovaltine
+    runs-on: ${{ inputs.runner_label }}
+    timeout-minutes: 360
+    env:
+      AOSP_ROOT: ${{ github.workspace }}/aosp
+
+    steps:
+      - name: Checkout ovaltine repo
+        uses: actions/checkout@v4
+
+      - name: Preflight - RAM and disk
+        run: |
+          set -euo pipefail
+          RAM_KB=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+          DISK_KB=$(df -Pk "${{ github.workspace }}" | awk 'NR==2 {print $4}')
+          echo "RAM: ${RAM_KB} kB; free disk: ${DISK_KB} kB; CPUs: $(nproc)"
+          if [ "$RAM_KB" -lt 30000000 ]; then
+            echo "::error::This runner has less than ~30 GB RAM. Standard ubuntu-latest is not enough; use a larger/self-hosted runner."
+            exit 1
+          fi
+          if [ "$DISK_KB" -lt 350000000 ]; then
+            echo "::error::This runner has less than ~350 GB free disk. Free space or use a larger/self-hosted runner."
+            exit 1
+          fi
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison build-essential ccache curl flex g++-multilib gcc-multilib \
+            git git-lfs gnupg gperf imagemagick lib32z1-dev libelf-dev libssl-dev \
+            libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools \
+            xsltproc zip zlib1g-dev openjdk-17-jdk python3 zstd
+
+      - name: Install repo
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o "$HOME/bin/repo"
+          chmod +x "$HOME/bin/repo"
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Fetch private vendor archive
+        env:
+          VENDOR_ARCHIVE_URL: ${{ secrets.VENDOR_ARCHIVE_URL }}
+          VENDOR_ARCHIVE_SHA256: ${{ secrets.VENDOR_ARCHIVE_SHA256 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${VENDOR_ARCHIVE_URL:-}" ]; then
+            echo "::error::Set the VENDOR_ARCHIVE_URL repository secret to a private vendor-oneplus.tar.zst URL (do not commit vendor blobs to this public repo)."
+            exit 1
+          fi
+          curl -fL --retry 3 --retry-delay 5 -o /tmp/vendor-oneplus.tar.zst "$VENDOR_ARCHIVE_URL"
+          if [ -n "${VENDOR_ARCHIVE_SHA256:-}" ]; then
+            echo "${VENDOR_ARCHIVE_SHA256}  /tmp/vendor-oneplus.tar.zst" | sha256sum -c -
+          else
+            echo "::warning::VENDOR_ARCHIVE_SHA256 is not set; archive integrity is not pinned."
+          fi
+          mkdir -p "$AOSP_ROOT/vendor"
+          tar --zstd -xf /tmp/vendor-oneplus.tar.zst -C "$AOSP_ROOT/vendor"
+          test -d "$AOSP_ROOT/vendor/oneplus/ovaltine"
+          test -d "$AOSP_ROOT/vendor/oneplus/sm8450-common"
+
+      - name: Init and sync LineageOS 22.1
+        run: |
+          set -euo pipefail
+          mkdir -p "$AOSP_ROOT"
+          cd "$AOSP_ROOT"
+          repo init -u https://github.com/lioisme/ovaltine.git -b main \
+            -m manifests/lineage-22.1-20261031.xml
+          repo sync -c -j8 --no-clone-bundle --no-tags
+
+      - name: Apply project patches
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          ./scripts/apply-patches.sh
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          cd "$AOSP_ROOT"
+          source build/envsetup.sh
+          breakfast ovaltine
+          JOBS=$(nproc)
+          if [ "$JOBS" -gt 16 ]; then JOBS=16; fi
+          brunch ovaltine -j"$JOBS" 2>&1 | tee "$GITHUB_WORKSPACE/build.log"
+
+      - name: Collect artifact metadata
+        run: |
+          set -euo pipefail
+          OUT="$AOSP_ROOT/out/target/product/ovaltine"
+          test -d "$OUT"
+          cd "$OUT"
+          sha256sum *.img *.zip > "$GITHUB_WORKSPACE/artifacts-SHA256SUMS.txt" || true
+          ls -lh > "$GITHUB_WORKSPACE/artifacts-list.txt"
+          cat "$GITHUB_WORKSPACE/artifacts-list.txt"
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: aosp-build-metadata
+          path: |
+            build.log
+            artifacts-SHA256SUMS.txt
+            artifacts-list.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload selected images (optional)
+        if: ${{ inputs.upload_images }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: aosp-selected-images
+          path: |
+            ${{ env.AOSP_ROOT }}/out/target/product/ovaltine/boot.img
+            ${{ env.AOSP_ROOT }}/out/target/product/ovaltine/dtbo.img
+            ${{ env.AOSP_ROOT }}/out/target/product/ovaltine/recovery.img
+            ${{ env.AOSP_ROOT }}/out/target/product/ovaltine/vbmeta.img
+            ${{ env.AOSP_ROOT }}/out/target/product/ovaltine/vbmeta_system.img
+            ${{ env.AOSP_ROOT }}/out/target/product/ovaltine/vbmeta_vendor.img
+          if-no-files-found: error
+          retention-days: 7

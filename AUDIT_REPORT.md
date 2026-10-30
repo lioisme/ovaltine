@@ -222,7 +222,7 @@
 | DRV-007 | P2 | 底包预编译 vendor_dlkm 回退未落地；vermagic 不一致 | 待整改 |
 | DRV-008 | P2 | 硬件矩阵无 driver 版本/许可证/测试 ID | 待整改 |
 | SEC-006 | P2 | debug/spoof 属性进入 user 构建 | 待整改 |
-| SEC-007 | P2 | 文档含设备序列号/uniqueId，未脱敏 | 待整改 |
+| SEC-007 | P2 | 文档含设备序列号/uniqueId，未脱敏 | 已整改（2026-10-31 历史重写脱敏） |
 | SEC-008 | P2 | `config.fs` 0771 与 SETUID/SETGID 需最小权限复核 | 待整改 |
 | SEC-009 | P2 | AVB vendor 链未包含 odm，rollback index 策略待确认 | 待整改 |
 | TST-005 | P2 | 无性能/热/续航/充电测试 | 待整改 |
@@ -642,7 +642,7 @@
 | DRV-007 | “底包预编译 vendor_dlkm 回退”未落地；EX01 dump 模块 vermagic 为 `5.10.236-gki-g3a16d49f0607`，与 boot 内核 `5.10.236-android12-9-o-g55571f3ffcfa` 不同；若直接使用会加载失败 | 明确 vendor_dlkm 来源：全部源码构建，或建立匹配的预编译模块清单；若回退，先做 vermagic/CRC 兼容验证；不要在生产中使用未知模块 | `modinfo`/`insmod` 关键模块通过；`dmesg` 无 vermagic 错误；回退方案有验证记录 |
 | DRV-008 | `HARDWARE_MATRIX` 无驱动版本/许可证/开源闭源/测试 ID；状态“一般”不可判定 | 用 `DRIVER_INVENTORY.md` 补全；每项映射测试 ID；状态改为“通过/失败/阻塞/未测” | 每个硬件项有驱动来源、许可证、测试 ID、证据 |
 | SEC-006 | user 构建仍带 `persist.dbg.volte_avail_ovr=1`、`persist.dbg.vt_avail_ovr=1`、`persist.dbg.wfc_avail_ovr=1`、`debug.sf.*`、`persist.vendor.sensors.debug.hal=0` | 将调试/强制属性限定到 `userdebug` 或删除；`user` 构建用脚本断言禁止 `persist.dbg.*`/`debug.*` | `user` 构建 `getprop` 无强制 IMS/debug 属性；IMS 测试真实通过 |
-| SEC-007 | `DEVICE_REPORT.md:3` 含序列号后段 `已脱敏`；`§4` 含 display uniqueId | 文档脱敏；原始证据保留本地并限制访问；提交前扫描 `serial|imei|iccid|uniqueId|mac` | 公共文档无设备唯一标识；原始证据有访问控制 |
+| SEC-007 | `DEVICE_REPORT.md:3` 曾含序列号后段；`§4` 曾含 display uniqueId；已于 2026-10-31 脱敏并重写历史 | 文档脱敏；原始证据保留本地并限制访问；提交前扫描 `serial|imei|iccid|uniqueId|mac` | 公共文档无设备唯一标识；原始证据有访问控制 |
 | SEC-008 | `config.fs` 对 `bt_firmware/`、`dsp/`、`firmware/`、`persist/` 用 0771；`loc_launcher` 有 SETUID/SETGID；多处重复 `system/vendor` 与 `vendor` 条目 | 逐项最小权限复核；确认 A15 路径语义；删除重复/无效条目；保留必要的 vendor AID | `fs_config` 生成无冲突；权限审计通过；无多余 SETUID/SETGID |
 | SEC-009 | `BOARD_AVB_VBMETA_VENDOR := vendor vendor_dlkm` 未包含 `odm`；`BOARD_AVB_*_ROLLBACK_INDEX` 用 `PLATFORM_SECURITY_PATCH_TIMESTAMP` | 解析 stock `vbmeta_vendor` 确认 odm 是否在链上；若不在，评估加入；定义 rollback index 策略，避免 SPL 回退 | `avbtool info_image` 显示预期分区；AVB 验证通过；rollback 策略有文档 |
 | TST-005 | 无性能/热/续航/充电测试 | 加入：冷启动/热启动时间、应用启动、帧率/jank、GPU、存储、充电功率/曲线、待机功耗、热区温度 | 每项有阈值与实测；不达标有分析/整改 |

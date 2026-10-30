@@ -156,6 +156,16 @@ VERIFY OK
 - 导出 `patches/macos-build/0004-lineage-envsetup-portable-date.patch` 并接入 `apply-patches.sh`（Darwin + `APPLY_MAC_PATCHES=1`）。
 - 残留：`build/make/core/version_util.mk` / `main.mk` 仍使用 GNU `date -d`，`breakfast` 仍会打印 `date: illegal option -- d`，但不阻塞；AUDIT BLD-006 仍未关闭。
 
+### 2.11 GitHub 公开仓库、历史脱敏与 CI
+
+- 目标远端：`https://github.com/lioisme/ovaltine`（public，空仓库，默认 `main`）；SSH 443 认证可用。
+- **公开前脱敏**：设备序列号与 display uniqueId 已从 `DEVICE_REPORT.md`、`BUILD_LOG.md`、`AUDIT_REPORT.md` 移除；`git filter-branch` 重写全部历史，旧 refs 已删除并 `git gc --prune=now`；`git log --all -S` 敏感串为空。
+- 公开仓库不含 `baseline/`、`scratch/`、`vendor_extract/`、`.venv/`、`probes/device_scan/`、底包 zip、vendor blob；`.gitignore` 已覆盖。
+- 新增 `.github/workflows/static-ci.yml`：标准 runner 上验证补丁可应用性、1474 工程 manifest、2688 条 blob 清单、脚本语法与禁刷策略。
+- 新增 `.github/workflows/aosp-build.yml`：手动全量构建；要求 larger/self-hosted runner（32 GB+ RAM、400 GB+ 磁盘），vendor 归档通过 `VENDOR_ARCHIVE_URL`/`VENDOR_ARCHIVE_SHA256` secrets 提供；标准 runner preflight 直接拒绝。
+- 新增 `CI.md` 说明标准 GitHub runner 无法全量构建 AOSP、vendor 归档如何制作/配置、artifact 策略（默认只上传日志/校验和，不上传 system/vendor/OTA）。
+- 当前仍缺 vendor 归档 secret 与足够大的 runner，因此 `aosp-build` 尚未运行；`static-ci` 将在首次 push 后自动运行。
+
 ---
 
 ## 3. 变更文件与补丁
@@ -166,6 +176,7 @@ VERIFY OK
 | `patches/adaptation/0002-common-hbm-deny-access.patch` | device/oneplus/sm8450-common | `init/init.oplus.rc` |
 | `patches/adaptation/0003-common-wise-light-and-rear-als.patch` | device/oneplus/sm8450-common | `extract-files.py`、`overlay/.../config.xml` |
 | `patches/macos-build/0003-soong-ui-darwin-trace-top.patch` | build/soong | `soong_ui.bash` |
+| `patches/macos-build/0004-lineage-envsetup-portable-date.patch` | vendor/lineage | `build/envsetup.sh` |
 
 补丁均可对基线 `59052db` / `258dbbd` / 构建树 `build/soong` 通过 `git apply --check` 或反向检查。
 
@@ -218,4 +229,5 @@ VERIFY OK
 | 版本 | 日期 | 变更 | 作者 |
 |---|---|---|---|
 | 1.0 | 2026-10-31 | 首轮静态适配：身份、HBM、wise-light 名称替换、rear-ALS、补丁脚本、禁刷约束 | 审计 Agent |
-| 1.1 | 2026-10-31 | 增加完整 pinned manifest（1474 工程）、blob SHA-256 清单（2688 文件）、macOS `$T` 修复 | 审计 Agent |
+| 1.1 | 2026-10-31 | 增加完整 pinned manifest（1474 工程）、blob SHA-256 清单（2688 文件）、macOS `$T` 修复 |
+| 1.2 | 2026-10-31 | 公开仓库前历史脱敏、GitHub Actions static-ci/aosp-build、CI.md | 审计 Agent |

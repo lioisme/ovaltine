@@ -1,0 +1,95 @@
+name: static-ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: static-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate patches, manifests and scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AOSP_ROOT: ${{ runner.temp }}/aosp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            python3 python3-yaml shellcheck libxml2-utils
+
+      - name: Validate source scripts
+        run: |
+          set -euo pipefail
+          bash -n scripts/*.sh tools/*.sh
+          shellcheck -S error scripts/*.sh tools/*.sh
+          python3 -m py_compile tools/extract_payload.py
+
+      - name: Validate pinned manifest
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import xml.etree.ElementTree as ET
+
+          p = pathlib.Path('manifests/lineage-22.1-20261031.xml')
+          text = p.read_text()
+          root = ET.fromstring(text)
+          projects = root.findall('project')
+          assert len(projects) == 1474, f'expected 1474 projects, got {len(projects)}'
+          assert 'mirrors.ustc.edu.cn' not in text, 'mirror URL leaked into pinned manifest'
+          for project in projects:
+              revision = project.get('revision') or ''
+              assert re.fullmatch(r'[0-9a-f]{40}', revision), (project.get('path'), revision)
+          print(f'manifest OK: {len(projects)} projects, all 40-char revisions')
+          PY
+
+      - name: Validate blob manifest format
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          import re
+
+          lines = pathlib.Path('artifacts/blob-manifest.sha256').read_text().splitlines()
+          assert len(lines) == 2688, f'expected 2688 entries, got {len(lines)}'
+          for line in lines:
+              assert re.fullmatch(r'[0-9a-f]{64}  oneplus/\S+', line), line
+          print(f'blob manifest OK: {len(lines)} entries')
+          PY
+
+      - name: Enforce no-flash policy in automation
+        run: |
+          set -euo pipefail
+          if grep -RInE 'fastboot[[:space:]]+flash|adb[[:space:]]+sideload|fastboot[[:space:]]+(-w|erase|format|set_active)|dd[[:space:]].*of=/dev/block' scripts tools; then
+            echo '::error::forbidden partition-write command found in scripts/tools'
+            exit 1
+          fi
+          echo 'no-flash policy OK'
+
+      - name: Apply patches to pinned device trees
+        run: |
+          set -euo pipefail
+          mkdir -p "$AOSP_ROOT/device/oneplus"
+          git clone --quiet https://github.com/lineage-ovaltine-dev/android_device_oneplus_ovaltine.git \
+            "$AOSP_ROOT/device/oneplus/ovaltine"
+          git -C "$AOSP_ROOT/device/oneplus/ovaltine" checkout --quiet 59052db232dc0b861cca9d15ec8fa0e7a81a2f74
+          git clone --quiet https://github.com/pjgowtham/android_device_oneplus_sm8450-common.git \
+            "$AOSP_ROOT/device/oneplus/sm8450-common"
+          git -C "$AOSP_ROOT/device/oneplus/sm8450-common" checkout --quiet 258dbbd818fbf29be579d6255888ca4bba3fdba1
+          ./scripts/apply-patches.sh
+
+      - name: Summary
+        run: |
+          echo 'static-ci passed: patches apply, tree assertions pass, manifests and no-flash policy valid'

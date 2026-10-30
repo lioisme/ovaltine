@@ -138,7 +138,7 @@
 | ID | 工作包 | 优先级 | 依赖 | 状态 |
 |---|---|---|---|---|
 | T-00 | 治理、仓库与文档基线 | P0 | 业主提供 remote | 进行中（本次审计提交） |
-| T-01 | Linux 构建宿主与工具链 | P0 | 硬件/云资源 | 阻塞（无 Linux 宿主） |
+| T-01 | Linux 构建宿主与工具链 | P0 | 大 runner/self-hosted + vendor secret | 进行中（GitHub Actions 已配置；待运行） |
 | T-02 | 完整 manifest 与补丁自动化 | P0 | T-00 | 进行中（补丁脚本完成；完整 manifest 待 Linux） |
 | T-03 | 设备身份与 variant 对齐 | P0 | T-02 | 进行中（静态身份修复完成；DSU 验证待 T-10） |
 | T-04 | 基线选型复审与 common 对齐 | P0 | T-02 | 未开始 |
@@ -179,16 +179,18 @@
 - **关联发现**：BLD-001、BLD-006～011、ARCH-001。
 - **需求**：具备官方支持的构建环境，能稳定完成 A15 全量构建。
 - **实现方向**
-  1. 准备 Linux x86_64：Ubuntu 22.04/24.04，32 GB RAM 起，250 GB+ SSD，`nproc>=16` 更佳。
+  1. 准备 Linux x86_64：Ubuntu 22.04/24.04，32 GB RAM 起，400 GB+ 可用磁盘，`nproc>=16` 更佳。
   2. 安装并锁定：JDK 17、repo 2.71、git-lfs、ccache、cmake、ninja、Python 3.12、erofs-utils、7zz、payload_dumper 0.2.2。
   3. 记录 `tool-versions.txt`、`uname -a`、`free -h`、`nproc`、`df -h`、`java -version`、`clang --version`。
   4. 配置镜像/代理（仅构建环境，不改系统网络配置）：优先官方源，失败时使用业主提供的代理/镜像；禁止把镜像 URL 写死到官方 manifest。
   5. macOS 构建仅作为实验：不进入发布；mac 补丁按 OS 隔离、单独 CI job。
+  6. GitHub Actions：`static-ci.yml` 每次 push 自动跑补丁/清单/禁刷校验；`aosp-build.yml` 手动全量构建，使用 larger/self-hosted runner（标准 `ubuntu-latest` 资源不足，preflight 会拒绝），vendor 归档通过 `VENDOR_ARCHIVE_URL`/`VENDOR_ARCHIVE_SHA256` secrets 提供，详见 `CI.md`。
 - **验收标准**
-  - `brunch` 在 Linux 上退出 0；峰值内存/磁盘/耗时记录完整。
+  - `brunch` 在 Linux/CI 上退出 0；峰值内存/磁盘/耗时记录完整。
   - 工具版本与 `tool-versions.txt` 一致；新机器按脚本可复现。
   - macOS 实验构建不阻塞 Linux 发布；mac 补丁不在 Linux 上生效。
-- **状态**：阻塞（缺 Linux 宿主/云资源；需业主决策）。
+  - `static-ci` 在 GitHub 上全绿；`aosp-build` 产出 `build.log`/`SHA256SUMS`。
+- **状态**：进行中（`static-ci.yml`/`aosp-build.yml`/`CI.md` 已配置；待大 runner + vendor 归档 secret 运行）。
 
 #### T-02 完整 manifest 与补丁自动化
 
@@ -542,7 +544,7 @@
 |---|---|---|---|
 | M0 | 审计完成、计划生效 | `AUDIT_REPORT`/`TASK_PLAN` 评审通过 | **已完成（本次）** |
 | M1 | 治理基线关闭 | T-00 验收；main/remote/文档/脚本 | 进行中 |
-| M2 | Linux 构建全绿 | T-01/T-02/T-08 验收；产物齐全 | 未开始（阻塞） |
+| M2 | Linux 构建全绿 | T-01/T-02/T-08 验收；产物齐全 | 未开始（CI 待运行） |
 | M3 | 内存/DSU 进出演练通过 | T-09 验收；第二人独立执行；0 分区写入 | 未开始 |
 | M4 | 内存/DSU 首次启动成功 | T-10 验收；SM 全绿 | 未开始 |
 | M5 | 硬件矩阵全绿 | T-11 验收；HW 100% | 未开始 |
@@ -557,7 +559,7 @@
 
 | 风险 | 概率 | 影响 | 触发 | 缓解 | 负责人 |
 |---|---|---|---|---|---|
-| 无 Linux 宿主导致项目停滞 | 高 | 高 | T-01 无法开始 | 业主提供机器/云资源；mac 仅实验 | 业主/构建 |
+| 无大 runner / vendor 归档导致构建停滞 | 高 | 高 | T-01 无法运行 | GitHub larger/self-hosted runner + 私有 vendor secret；mac 仅实验 | 业主/构建 |
 | 内存/DSU 测试无法退出 | 中 | 高 | DSU/内存启动异常 | T-09 先行；重启/DSU 丢弃；禁止刷机修复 | 测试/业主 |
 | CPH2415 与 2417/NE2213 blob 不兼容 | 高 | 高 | 相机/音频/充电异常 | T-04/T-05 逐项对齐；回退 | 驱动 |
 | super/userdata 尺寸不符 | 中 | 高 | DSU/内存测试失败 | 设备实测 `blockdev`；对比分区表 | 构建 |
@@ -580,6 +582,11 @@
 - `HARDWARE_INVENTORY.md`
 - `DRIVER_INVENTORY.md`
 - `README.md`
+- `CI.md`
+- `BLOB_PROVENANCE.md`
+- `ADAPTATION_LOG.md`
+- `.github/workflows/static-ci.yml`
+- `.github/workflows/aosp-build.yml`
 - `SECURITY.md`
 - `CONTRIBUTING.md`
 - `CHANGELOG.md`
