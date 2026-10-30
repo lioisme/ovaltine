@@ -8,6 +8,7 @@ name: aosp-build
 # Vendor blobs are NOT in this public repo. Set repository secrets:
 #   VENDOR_ARCHIVE_URL     - private URL to vendor-oneplus.tar.zst
 #   VENDOR_ARCHIVE_SHA256  - SHA-256 of that archive
+#   VENDOR_ARCHIVE_TOKEN   - optional Bearer token for protected URLs
 # The archive must contain `oneplus/` at its top level (i.e. vendor/oneplus/...).
 #
 # This workflow never writes to a device and never invokes fastboot/adb.
@@ -79,13 +80,18 @@ jobs:
         env:
           VENDOR_ARCHIVE_URL: ${{ secrets.VENDOR_ARCHIVE_URL }}
           VENDOR_ARCHIVE_SHA256: ${{ secrets.VENDOR_ARCHIVE_SHA256 }}
+          VENDOR_ARCHIVE_TOKEN: ${{ secrets.VENDOR_ARCHIVE_TOKEN }}
         run: |
           set -euo pipefail
           if [ -z "${VENDOR_ARCHIVE_URL:-}" ]; then
             echo "::error::Set the VENDOR_ARCHIVE_URL repository secret to a private vendor-oneplus.tar.zst URL (do not commit vendor blobs to this public repo)."
             exit 1
           fi
-          curl -fL --retry 3 --retry-delay 5 -o /tmp/vendor-oneplus.tar.zst "$VENDOR_ARCHIVE_URL"
+          CURL_ARGS=(-fL --retry 3 --retry-delay 5 -o /tmp/vendor-oneplus.tar.zst)
+          if [ -n "${VENDOR_ARCHIVE_TOKEN:-}" ]; then
+            CURL_ARGS+=(-H "Authorization: Bearer ${VENDOR_ARCHIVE_TOKEN}")
+          fi
+          curl "${CURL_ARGS[@]}" "$VENDOR_ARCHIVE_URL"
           if [ -n "${VENDOR_ARCHIVE_SHA256:-}" ]; then
             echo "${VENDOR_ARCHIVE_SHA256}  /tmp/vendor-oneplus.tar.zst" | sha256sum -c -
           else

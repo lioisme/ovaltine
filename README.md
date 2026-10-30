@@ -48,13 +48,13 @@ OnePlus Ace Pro / 10T（codename **ovaltine**，目标型号 **CPH2415**）的 L
 
 ## 当前结论（审计摘要 + 2026-10-31 整改进展）
 
-- **构建**：4 轮 brunch 均失败/被杀；`out/target/product/ovaltine` 不存在。
+- **构建**：4 轮 brunch 均失败/被杀；`out/target/product/ovaltine` 不存在。GitHub `static-ci` 已 passing；全量 `aosp-build` 待大 runner + vendor secret。
 - **身份**：已静态修正为 `CPH2415 / Android 15`；待内存/DSU 验证。
 - **基线**：设备树 blob 锚定 OOS14；common 来自 OnePlus 10 Pro（NE2213/Android 14）；待 T-04/T-05 收敛。
 - **修复链**：HBM、wise-light 名称替换、rear-ALS 已落静态补丁；旧 SIGSCAN 在 EX01 缺失，第二段待验证。
 - **安全**：SPL 2025-01/2025-04；AVB testkey；SELinux/CTS/VTS 未验证。
 - **红线**：SOP v2.0 已补（禁止真实刷机，仅内存/DSU）；退出演练未执行。
-- **仓库**：已切到 `main`、打 tag、补 remote 待业主；工作区干净；公共探针/可选补丁已入库。
+- **仓库**：已推送 `main` + `audit-2026-10-31` 到公开仓库；序列号/uniqueId 已从历史脱敏；static-ci passing；工作区干净。
 
 ---
 

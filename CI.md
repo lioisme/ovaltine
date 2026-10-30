@@ -7,6 +7,7 @@
 | 全量构建 | `.github/workflows/aosp-build.yml` |
 | 设备写入 | **无**（工作流不调用 fastboot/adb 写设备） |
 | 约束 | DECISION-006：只允许内存启动/DSU；本 CI 只构建，不刷机 |
+| 当前状态 | `static-ci` **passing**（run 41104019019 @ `442350c`）；`aosp-build` 尚未运行（缺大 runner + vendor secret） |
 
 ---
 
@@ -41,6 +42,22 @@ GitHub 免费/标准 `ubuntu-latest` 大致是 4 vCPU / 16 GB RAM / 14 GB 可用
 - Ubuntu 22.04/24.04，已安装 build-essential/JDK 17 等（工作流也会尝试安装）
 - 能访问 GitHub、AOSP/LineageOS 源或镜像
 
+快速步骤（在云主机上执行）：
+
+```bash
+# 1. 在 GitHub 仓库 Settings → Actions → Runners → New self-hosted runner
+#    复制官方下载/配置命令；标签填 aosp-builder
+mkdir -p ~/actions-runner && cd ~/actions-runner
+# 按页面给出的 URL/版本下载 runner，然后：
+./config.sh --url https://github.com/lioisme/ovaltine \
+  --token <RUNNER_REGISTRATION_TOKEN> \
+  --labels aosp-builder
+sudo ./svc.sh install
+sudo ./svc.sh start
+```
+
+> 注册 token 只在配置时使用，不要提交到仓库。构建完可停掉/销毁云主机；源码与产物不落在公开仓库。
+
 > “完全在 GitHub 中编排”可以做到；但计算资源仍需一个满足规格的 runner。GitHub 免费标准 runner 无法改变硬件上限。
 
 ## 3. Vendor blobs（必须由业主提供）
@@ -62,6 +79,7 @@ sha256sum /tmp/vendor-oneplus.tar.zst
 |---|---|---|
 | `VENDOR_ARCHIVE_URL` | 是 | 私有下载 URL；不要在公开 issue/日志中暴露 |
 | `VENDOR_ARCHIVE_SHA256` | 建议 | 归档 SHA-256；不设置会 warning |
+| `VENDOR_ARCHIVE_TOKEN` | 可选 | 若 URL 需要 Bearer token（如受保护的 release asset）则设置；签名 URL 不需要 |
 
 > 不要把 vendor blob 提交到公开仓库；不要把带专有内容的 `system.img`/`vendor.img`/OTA 上传为公开 artifact。
 
@@ -99,7 +117,11 @@ gh workflow run aosp-build.yml \
 - `manifests/lineage-22.1-20261031.xml` 1474 工程、全部 40 位 revision、无 USTC 镜像；
 - `artifacts/blob-manifest.sha256` 2688 条格式；
 - 脚本中不存在 `fastboot flash`/`adb sideload`/`fastboot -w`/`dd` 写分区等禁刷命令；
-- 克隆两棵 pinned 设备树（device ovaltine @ `59052db`、common @ `258dbbd`），应用 EX01 + adaptation 补丁，跑 `verify-tree.sh`。
+- 通过 `actions/checkout` 拉取两棵 pinned 设备树（device ovaltine @ `59052db`、common @ `258dbbd`），应用 EX01 + adaptation 补丁，跑 `verify-tree.sh`。
+
+**当前结果**：passing，见 https://github.com/lioisme/ovaltine/actions/runs/41104019019 。
+
+> 首次运行曾失败（raw git clone + 未使用的 apt 依赖）；已改为 `actions/checkout` pinned ref，并移除无关依赖后通过。
 
 ## 6. 已知限制
 

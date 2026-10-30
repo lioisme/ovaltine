@@ -138,7 +138,7 @@
 | ID | 工作包 | 优先级 | 依赖 | 状态 |
 |---|---|---|---|---|
 | T-00 | 治理、仓库与文档基线 | P0 | 业主提供 remote | 进行中（本次审计提交） |
-| T-01 | Linux 构建宿主与工具链 | P0 | 大 runner/self-hosted + vendor secret | 进行中（GitHub Actions 已配置；待运行） |
+| T-01 | Linux 构建宿主与工具链 | P0 | 大 runner/self-hosted + vendor secret | 进行中（static-ci passing；aosp-build 待大 runner + vendor secret） |
 | T-02 | 完整 manifest 与补丁自动化 | P0 | T-00 | 进行中（补丁脚本完成；完整 manifest 待 Linux） |
 | T-03 | 设备身份与 variant 对齐 | P0 | T-02 | 进行中（静态身份修复完成；DSU 验证待 T-10） |
 | T-04 | 基线选型复审与 common 对齐 | P0 | T-02 | 未开始 |
@@ -190,7 +190,7 @@
   - 工具版本与 `tool-versions.txt` 一致；新机器按脚本可复现。
   - macOS 实验构建不阻塞 Linux 发布；mac 补丁不在 Linux 上生效。
   - `static-ci` 在 GitHub 上全绿；`aosp-build` 产出 `build.log`/`SHA256SUMS`。
-- **状态**：进行中（`static-ci.yml`/`aosp-build.yml`/`CI.md` 已配置；待大 runner + vendor 归档 secret 运行）。
+- **状态**：进行中（`static-ci` 已通过 run 41104019019；`aosp-build` 待大 runner + vendor 归档 secret）。
 
 #### T-02 完整 manifest 与补丁自动化
 
