@@ -46,11 +46,11 @@
 | GPU | msm DRM/kgsl（kernel） | Adreno EGL/Vulkan blob | `vendor/lib64/egl/*adreno*`、GPU 微码 | 混合 | kernel `63aeb92d`；blob EX01 | 待 E4 | 闭源 GPU 栈 |
 | 显示 | `qcom/opensource/display-drivers/msm`（kernel modules） | OSS composer + 闭源 HWC/HDR 组件 | `vendor/bin/hw/vendor.qti.hardware.display.composer-service`、`libdisplayconfig`、`libsnapdragoncolor*`、`libpwirisfeature` | 混合 | modules `cb014aff`；blob EX01 | 待 E4 | 闭源 display 栈 |
 | 触摸 | Oplus touch 内核驱动（modules） | `vendor.lineage.touch@1.0-service.oplus`（hardware/oplus） | 触摸固件（`/odm/firmware/tp`） | 开源 HAL + 闭源固件 | hardware/oplus `37e78750` | 待 E4 | 通用触摸 HAL |
-| UDFPS | 内核 HBM/display 节点 | fingerprint HAL 2.3（hardware/oplus）+ `libudfps_extension.oplus` | `vendor.oplus.hardware.biometrics.fingerprint@2.1-service_uff` 等 | 混合 | hardware/oplus `37e78750`；blob EX01 | **已知 HBM 风险** | 关闭框架调光/恢复 HBM 权限（不推荐） |
+| UDFPS | 内核 HBM/display 节点 | fingerprint HAL 2.3（hardware/oplus）+ `libudfps_extension.oplus` | `vendor.oplus.hardware.biometrics.fingerprint@2.1-service_uff` 等 | 混合 | hardware/oplus `37e78750`；blob EX01 | **HBM 静态修复，待验证** | 关闭框架调光/恢复 HBM 权限（不推荐） |
 | 相机 | `qcom/opensource/camera-kernel`（modules） | camx/chii 闭源 HAL | `vendor/lib64/libcamx*`、`libchii*`、`libAlgoProcess`、`CameraHWConfiguration.config` | 闭源为主 | modules `cb014aff`；blob EX01 | 待 E4 | 主摄/基础拍照；aux 修复 |
 | 充电/电池 | QCOM/oplus 充电驱动（kernel） | 闭源 oplus 充电 HAL/服务 | `vendor/bin/hw/*charger*`、oplus battery 服务 | 混合 | kernel `63aeb92d`；blob EX01 | 待 E4；150W 预计受限 | 普通 USB/PD 充电；关闭快充 |
 | 音频 | `qcom/opensource/audio-kernel`（modules） | `android.hardware.audio.service` + PAL/AGM（闭源部分） | `audio.primary.taro`、`libpal*`、`libagm*`、`libar-*`（部分源码/部分 blob） | 混合 | modules `cb014aff`；hardware/qcom-caf `sm8450` | 待 E4 | 基础音频通路 |
-| 传感器 | SSC/IIO 内核驱动（modules） | `sensors.oplus` + `sensors.dynamic_sensor_hal` | `vendor/lib64/sensors.ssc.so`、`libsnsapi.so`、`libssc.so` | 混合 | hardware/oplus `37e78750`；blob EX01 | **wise-light/ALS 待修** | 标准 light sensor 注册 |
+| 传感器 | SSC/IIO 内核驱动（modules） | `sensors.oplus` + `sensors.dynamic_sensor_hal` | `vendor/lib64/sensors.ssc.so`、`libsnsapi.so`、`libssc.so` | 混合 | hardware/oplus `37e78750`；blob EX01 | **名称替换+ALS 静态，SIGSCAN 待验证** | 标准 light sensor 注册 |
 | GPS/GNSS | 内核 GNSS 驱动（modules） | GNSS AIDL HAL（闭源） | `android.hardware.gnss-aidl-service-qti`、`libgarden.so`、`gps.conf` | 闭源 HAL | blob EX01 | 待 E4 | 仅 GPS/AGPS |
 | WiFi | qcacld-3.0（modules） | `android.hardware.wifi-service` + wpa_supplicant | `bdwlan.b0a`、`WCNSS_qcom_cfg.ini`、`libwifi-hal-qcom.so` | 混合 | modules `cb014aff` | 待 E4 | 2.4/5GHz；6E 降级 |
 | BT | QCOM BT 驱动（modules） | BT HAL + `libbt-vendor` | `bluetooth_a/b` 固件、`bdroid_buildcfg.h` | 混合 | modules `cb014aff` | 待 E4 | 基础 BT/LE |
@@ -118,10 +118,10 @@
 
 | 项 | 值 |
 |---|---|
-| device/ovaltine | Apache-2.0；`59052db`；CPH2417 身份/Android 13 fingerprint 待修 |
+| device/ovaltine | Apache-2.0；`59052db`；身份已静态改为 CPH2415/Android 15（待 DSU 验证） |
 | common（选定） | Apache-2.0；pjgowtham `258dbbd`；blob 来源 NE2213/Android 14 |
 | hardware/oplus（上游） | Apache-2.0；`37e78750`；模块齐全 |
-| 风险 | 设备/common 跨 variant；HBM/wise-light/ALS 修复未生效 |
+| 风险 | 设备/common 跨 variant；HBM/名称/ALS 静态补丁已加，SIGSCAN/运行时待验证 |
 
 ---
 
@@ -159,7 +159,7 @@
 
 | 组件 | 路径示例 | 作用 | 风险/回退 |
 |---|---|---|---|
-| fingerprint HAL | `vendor.oplus.hardware.biometrics.fingerprint@2.1-service_uff` | 指纹服务 | HBM 冲突；可关闭框架调光 |
+| fingerprint HAL | `vendor.oplus.hardware.biometrics.fingerprint@2.1-service_uff` | 指纹服务 | HBM `chmod 0000` 已加；待验证 |
 | OLC/CommonDCS | `libolc_vnd.so`、`vendor.oplus.hardware.commondcs-V1-ndk_platform.so` | 指纹算法/通信 | 依赖 blob |
 | 固件 | `odm/vendor/firmware/uff_jv.b00` | 指纹固件 | 不可替代 |
 
@@ -175,7 +175,7 @@
 
 | 组件 | 路径示例 | 作用 | 风险/回退 |
 |---|---|---|---|
-| sensors.ssc | `vendor/lib64/sensors.ssc.so` | 传感器 HAL | wise-light 未注册；需二进制修复 |
+| sensors.ssc | `vendor/lib64/sensors.ssc.so` | 传感器 HAL | 名称替换已加；SIGSCAN 第二段待验证 |
 | SSC 库 | `libsnsapi.so`、`libssc.so`、`libsnsdiaglog.so` | SSC 通信 | 依赖 blob |
 | 配置 | `vendor/etc/sensors/hals.conf`、`sensors.ssc.so` | HAL 注册 | 需与 overlay 对齐 |
 
@@ -233,12 +233,12 @@
 
 | ID | 缺口 | 影响 | 整改 | 验收 |
 |---|---|---|---|---|
-| DRV-001 | HBM 修复缺失 | UDFPS 闪烁/失败 | 端口 `chmod 0000 hbm` | 100 次解锁 0 失败 |
-| DRV-002 | wise-light/rear-ALS 缺失 | 自动亮度异常 | `sensors.ssc.so` 替换 + overlay | 亮度曲线通过 |
-| DRV-003 | 补丁链不可应用 | 已知修复未生效 | patch 重做 + verify | 全补丁 apply/断言通过 |
+| DRV-001 | HBM 修复缺失 | UDFPS 闪烁/失败 | 已加 `chmod 0000`（静态）；待验证 | 100 次解锁 0 失败 |
+| DRV-002 | wise-light/rear-ALS 缺失 | 自动亮度异常 | 名称替换 + overlay 已加；SIGSCAN 待重推导 | 亮度曲线通过 |
+| DRV-003 | 补丁链不可应用 | 已知修复未生效 | apply/verify 脚本 + 本轮补丁已完成；完整 manifest 已生成 | 全补丁 apply/断言通过 |
 | DRV-006 | kernel/modules/devicetree 错位 | 模块加载失败 | 三元组配套 | modinfo/insmod 通过 |
 | DRV-007 | 预编译 vendor_dlkm 回退未落地 | 回退不可用 | 明确来源/vermagic/CRC | 模块可加载 |
-| DRV-008 | 无驱动版本/许可证/测试 ID | 不可审计 | 本清单 + SBOM | 每项有来源/许可证/测试 |
+| DRV-008 | 无驱动版本/许可证/测试 ID | 不可审计 | 清单 + blob SHA-256 清单已加；SBOM 待 | 每项有来源/许可证/测试 |
 | — | 闭源 blob 法律状态 | 发布风险 | 法务/SBOM | 书面确认 |
 | — | 10 Pro common 跨机型 | 相机/音频/充电异常 | T-04 对齐 | 真机通过 |
 

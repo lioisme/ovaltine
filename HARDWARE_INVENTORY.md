@@ -39,7 +39,7 @@
 | Variant | 市场 | 与本项目关系 | 风险 |
 |---|---|---|---|
 | CPH2415 | 10T 全球/欧盟 | **目标机** | — |
-| CPH2417 | 10T 其他区域 | 设备树 `lineage_ovaltine.mk` 当前写的是它 | 身份/fingerprint/区域配置错误 |
+| CPH2417 | 10T 其他区域 | 设备树原身份（已静态改为 CPH2415） | 需 variant 矩阵确认 |
 | CPH2413 | 10T 印度等 | 设备树 WiFi 配置来源注释引用它 | blob 版本/区域差异 |
 | NE2211 / NE2213 | OnePlus 10 Pro | 选定 common 树 `pjgowtham_sm8450-common` 的 blob 来源 | 跨机型相机/音频/充电/显示差异 |
 | CPH2419 等 | 10T 运营商版 | 本项目不覆盖 | 基带/运营商配置差异 |
@@ -56,12 +56,12 @@
 | HW-02 | GPU | Adreno 730 | `ro.hardware.egl/vulkan=adreno`；GLES 3.2；DEVICE_REPORT §2 | 已识别，待 E4 | HW-02 |
 | HW-03 | 显示 | 6.7" AMOLED，1080×2412，20:9，480 dpi，60/90/120 Hz，HDR HLG/HDR10/DV 声明，峰值 540 nit | `dumpsys display`；DEVICE_REPORT §4 | 已识别，待 E4 | HW-03 |
 | HW-04 | 触摸 | 屏下触摸 + 按键通道；Oplus touchpanel 框架 | `getevent -il` event5/6；DEVICE_REPORT §5 | 已识别，待 E4 | HW-04 |
-| HW-05 | UDFPS | 光学屏下指纹；`oplus_fp_input` | event2；DEVICE_REPORT §5；overlay UDFPS 参数 | 已识别，已知 HBM 风险待修 | HW-05 |
+| HW-05 | UDFPS | 光学屏下指纹；`oplus_fp_input` | event2；DEVICE_REPORT §5；overlay UDFPS 参数 | 已识别，HBM 静态修复已加，待 DSU 验证 | HW-05 |
 | HW-06 | 相机 | 1 前 + 5 后（主摄 50MP + 超广角 8MP + 微距 2MP + 逻辑多摄） | `dumpsys media.camera` 6 ID；DEVICE_REPORT §7 | 已识别，待 E4 | HW-06 |
 | HW-07 | 充电/电池 | 4800 mAh；150W SUPERVOOC（闭源协议）；USB PD/普通充电 | DEVICE_REPORT §11；oplus battery service | 已识别，峰值功率预计受限 | HW-07 |
 | HW-08 | 音频 | 立体声双扬声器、麦克风阵列、USB-C 耳机（无 3.5mm）；waipio-mtp-snd-card | `getevent`；DEVICE_REPORT §8 | 已识别，待 E4 | HW-08 |
-| HW-09 | 传感器 | BMI26x（accel/gyro）、AK0991x（mag）、TCS3701（light/proximity）、QTI fusion | `dumpsys sensorservice`；DEVICE_REPORT §6 | 已识别，wise-light/ALS 待修 | HW-09/HW-10 |
-| HW-10 | 自动亮度 | 环境光 + 后置 ALS（待确认） | TCS3701；对照 overlay `qti.sensor.light_rear` | 已知风险 | HW-10 |
+| HW-09 | 传感器 | BMI26x（accel/gyro）、AK0991x（mag）、TCS3701（light/proximity）、QTI fusion | `dumpsys sensorservice`；DEVICE_REPORT §6 | 已识别，wise-light 名称替换 + rear-ALS 已加，SIGSCAN 待验证 | HW-09/HW-10 |
+| HW-10 | 自动亮度 | 环境光 + 后置 ALS（待确认） | TCS3701；对照 overlay `qti.sensor.light_rear` | 静态配置已加，待验证 | HW-10 |
 | HW-11 | GPS | GNSS（Qualcomm） | HAL/blob；DEVICE_REPORT §9 | 已识别，待 E4 | HW-11 |
 | HW-12 | WiFi/BT | WiFi 6/6E（qca6490）、BT 5.2 | modules/固件；DEVICE_REPORT §9 | 已识别，6E 待验证 | HW-12 |
 | HW-13 | NFC/eSE | 全功能 NFC + eSE | props features；DEVICE_REPORT §9 | 已识别，待 E4 | HW-13 |
@@ -135,7 +135,7 @@
 | 器件 | 光学屏下指纹（`oplus_fp_input`，event2） |
 | 栈 | 闭源 fingerprint HAL（2.3 service）+ `libudfps_extension.oplus` + overlay 调光 |
 | 关键配置 | `config_udfpsFrameworkDimming=true`；UDFPS sensor props 540/2182/86 |
-| 已知风险 | 选定 common 树 `init.oplus.rc` 仍 `chown system .../hbm`，与框架调光冲突；HBM 补丁未应用 |
+| 已知风险 | HBM 静态修复已加（`chmod 0000`），待 DSU/真机 100 次解锁验证 |
 | 证据 | `overlay/.../config.xml:9`；`init.oplus.rc:16`；`AUDIT_REPORT` DRV-001 |
 | 测试 ID | HW-05、ST-03 |
 | 验收 | 录入成功；100 次解锁 0 失败；无亮度闪烁；`dmesg` 无 avc/HBM 权限错误 |
@@ -181,7 +181,7 @@
 |---|---|
 | 器件 | BOSCH BMI26x（accel/gyro）、AKM AK0991x（mag）、Oplus TCS3701（light/proximity） |
 | 栈 | 内核 IIO/SSC + 闭源 sensors.ssc + `sensors.oplus` |
-| 关键风险 | wise-light 未注册为 `android.sensor.light`；rear-ALS 配置缺失 |
+| 关键风险 | wise-light 名称替换 + rear-ALS overlay 已加；旧 SIGSCAN 在 EX01 缺失，第二段待验证 |
 | 证据 | `DEVICE_REPORT` §6；`strings sensors.ssc.so` 仍为 `qti.sensor.wise_light` |
 | 测试 ID | HW-09、HW-10、ST-01 |
 | 验收 | 所有类型上报；数值随动作变化；自动亮度曲线平滑；无 sensor 权限错误 |
