@@ -19,16 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      AOSP_ROOT: ${{ runner.temp }}/aosp
+      AOSP_ROOT: ${{ github.workspace }}/aosp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install validation tools
+      - name: Ensure shellcheck
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            python3 python3-yaml shellcheck libxml2-utils
+          set -euo pipefail
+          if ! command -v shellcheck >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends shellcheck
+          fi
+          shellcheck --version | head -2
 
       - name: Validate source scripts
         run: |
@@ -78,16 +81,25 @@ jobs:
           fi
           echo 'no-flash policy OK'
 
+      - name: Checkout pinned device tree
+        uses: actions/checkout@v4
+        with:
+          repository: lineage-ovaltine-dev/android_device_oneplus_ovaltine
+          ref: 59052db232dc0b861cca9d15ec8fa0e7a81a2f74
+          path: aosp/device/oneplus/ovaltine
+          clean: false
+
+      - name: Checkout pinned common tree
+        uses: actions/checkout@v4
+        with:
+          repository: pjgowtham/android_device_oneplus_sm8450-common
+          ref: 258dbbd818fbf29be579d6255888ca4bba3fdba1
+          path: aosp/device/oneplus/sm8450-common
+          clean: false
+
       - name: Apply patches to pinned device trees
         run: |
           set -euo pipefail
-          mkdir -p "$AOSP_ROOT/device/oneplus"
-          git clone --quiet https://github.com/lineage-ovaltine-dev/android_device_oneplus_ovaltine.git \
-            "$AOSP_ROOT/device/oneplus/ovaltine"
-          git -C "$AOSP_ROOT/device/oneplus/ovaltine" checkout --quiet 59052db232dc0b861cca9d15ec8fa0e7a81a2f74
-          git clone --quiet https://github.com/pjgowtham/android_device_oneplus_sm8450-common.git \
-            "$AOSP_ROOT/device/oneplus/sm8450-common"
-          git -C "$AOSP_ROOT/device/oneplus/sm8450-common" checkout --quiet 258dbbd818fbf29be579d6255888ca4bba3fdba1
           ./scripts/apply-patches.sh
 
       - name: Summary
