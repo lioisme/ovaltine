@@ -1,0 +1,18 @@
+[
+  {
+    "name": "lineage-20",
+    "commit": {
+      "sha": "7c2d946c57b1945066f9ca90531e0c9c3e4b450f",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_manifest/commits/7c2d946c57b1945066f9ca90531e0c9c3e4b450f"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-21",
+    "commit": {
+      "sha": "a1e1e90960e73cfc83a71c6ec9262e4e0266a9b4",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_manifest/commits/a1e1e90960e73cfc83a71c6ec9262e4e0266a9b4"
+    },
+    "protected": false
+  }
+]

@@ -1,0 +1,84 @@
+[
+  {
+    "sha": "258dbbd818fbf29be579d6255888ca4bba3fdba1",
+    "node_id": "C_kwDOJj2pWtoAKDI1OGRiYmQ4MThmYmYyOWJlNTc5ZDYyNTU4ODhjYTRiYmEzZmRiYTE",
+    "commit": {
+      "author": {
+        "name": "pjgowtham",
+        "email": "pjgowtham@gmail.com",
+        "date": "2025-03-16T07:10:28Z"
+      },
+      "committer": {
+        "name": "pjgowtham",
+        "email": "pjgowtham@gmail.com",
+        "date": "2025-03-16T07:10:31Z"
+      },
+      "message": "sm8450-common: Fix offline charging\n\nro.boot.mode is never set to \"charger\" and we rely on ro.boot.startupmode\nduring first stage init to boot into charger mode.",
+      "tree": {
+        "sha": "15529a658dd8eb10e21c9277dc9ab04cc5875841",
+        "url": "https://api.github.com/repos/pjgowtham/android_device_oneplus_sm8450-common/git/trees/15529a658dd8eb10e21c9277dc9ab04cc5875841"
+      },
+      "url": "https://api.github.com/repos/pjgowtham/android_device_oneplus_sm8450-common/git/commits/258dbbd818fbf29be579d6255888ca4bba3fdba1",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/pjgowtham/android_device_oneplus_sm8450-common/commits/258dbbd818fbf29be579d6255888ca4bba3fdba1",
+    "html_url": "https://github.com/pjgowtham/android_device_oneplus_sm8450-common/commit/258dbbd818fbf29be579d6255888ca4bba3fdba1",
+    "comments_url": "https://api.github.com/repos/pjgowtham/android_device_oneplus_sm8450-common/commits/258dbbd818fbf29be579d6255888ca4bba3fdba1/comments",
+    "author": {
+      "login": "pjgowtham",
+      "id": 828997,
+      "node_id": "MDQ6VXNlcjgyODk5Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/828997?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/pjgowtham",
+      "html_url": "https://github.com/pjgowtham",
+      "followers_url": "https://api.github.com/users/pjgowtham/followers",
+      "following_url": "https://api.github.com/users/pjgowtham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/pjgowtham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/pjgowtham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/pjgowtham/subscriptions",
+      "organizations_url": "https://api.github.com/users/pjgowtham/orgs",
+      "repos_url": "https://api.github.com/users/pjgowtham/repos",
+      "events_url": "https://api.github.com/users/pjgowtham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/pjgowtham/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "pjgowtham",
+      "id": 828997,
+      "node_id": "MDQ6VXNlcjgyODk5Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/828997?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/pjgowtham",
+      "html_url": "https://github.com/pjgowtham",
+      "followers_url": "https://api.github.com/users/pjgowtham/followers",
+      "following_url": "https://api.github.com/users/pjgowtham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/pjgowtham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/pjgowtham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/pjgowtham/subscriptions",
+      "organizations_url": "https://api.github.com/users/pjgowtham/orgs",
+      "repos_url": "https://api.github.com/users/pjgowtham/repos",
+      "events_url": "https://api.github.com/users/pjgowtham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/pjgowtham/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "7de02d526ffc0a0c019f345c638c2cd696f4ac2e",
+        "url": "https://api.github.com/repos/pjgowtham/android_device_oneplus_sm8450-common/commits/7de02d526ffc0a0c019f345c638c2cd696f4ac2e",
+        "html_url": "https://github.com/pjgowtham/android_device_oneplus_sm8450-common/commit/7de02d526ffc0a0c019f345c638c2cd696f4ac2e"
+      }
+    ]
+  }
+]

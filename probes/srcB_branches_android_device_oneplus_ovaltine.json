@@ -1,0 +1,66 @@
+[
+  {
+    "name": "lineage-20",
+    "commit": {
+      "sha": "321ee284ce8bc964a103150f5811914a12e59934",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/321ee284ce8bc964a103150f5811914a12e59934"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-21-elf-check",
+    "commit": {
+      "sha": "484e0f86338b6b1e37f8963e867f64468d61fcc0",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/484e0f86338b6b1e37f8963e867f64468d61fcc0"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-21-wifi",
+    "commit": {
+      "sha": "a6cff845f73bf27b8ed46bd8ca85a4c1be1cf6cb",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/a6cff845f73bf27b8ed46bd8ca85a4c1be1cf6cb"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-21",
+    "commit": {
+      "sha": "61746f34c7a3c9d25f203590865465acf32ab10a",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/61746f34c7a3c9d25f203590865465acf32ab10a"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-22.1-displayconfig",
+    "commit": {
+      "sha": "9a10352d6a43f3bf4cab9bfbf368dbcfc71b2b43",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/9a10352d6a43f3bf4cab9bfbf368dbcfc71b2b43"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-22.1",
+    "commit": {
+      "sha": "59052db232dc0b861cca9d15ec8fa0e7a81a2f74",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/59052db232dc0b861cca9d15ec8fa0e7a81a2f74"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-22.2",
+    "commit": {
+      "sha": "608c302903400748c50692810c6c469c34dc3255",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/608c302903400748c50692810c6c469c34dc3255"
+    },
+    "protected": false
+  },
+  {
+    "name": "lineage-23.2",
+    "commit": {
+      "sha": "79f9f462f439ebb1ac7366fa1c5e4b348c96f96f",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/79f9f462f439ebb1ac7366fa1c5e4b348c96f96f"
+    },
+    "protected": false
+  }
+]

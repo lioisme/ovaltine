@@ -1,0 +1,27 @@
+From 258dbbd818fbf29be579d6255888ca4bba3fdba1 Mon Sep 17 00:00:00 2001
+From: pjgowtham <pjgowtham@gmail.com>
+Date: Sun, 16 Mar 2025 12:40:28 +0530
+Subject: [PATCH] sm8450-common: Fix offline charging
+
+ro.boot.mode is never set to "charger" and we rely on ro.boot.startupmode
+during first stage init to boot into charger mode.
+---
+ init/init.target.rc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init/init.target.rc b/init/init.target.rc
+index 5e9c23d..7b77e59 100644
+--- a/init/init.target.rc
++++ b/init/init.target.rc
+@@ -124,7 +124,7 @@ on property:vendor.display.lcd_density=560
+ on property:vendor.display.lcd_density=640
+    setprop dalvik.vm.heapgrowthlimit 512m
+ 
+-on init && property:ro.boot.mode=charger
++on init && property:ro.boot.startupmode=usb_charger
+     wait_for_prop vendor.all.modules.ready 1
+     mount_all /vendor/etc/charger_fw_fstab.qti --early
+     wait /sys/kernel/boot_adsp/boot
+-- 
+2.51.0
+

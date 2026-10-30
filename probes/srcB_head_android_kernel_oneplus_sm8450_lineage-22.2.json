@@ -1,0 +1,84 @@
+[
+  {
+    "sha": "bcdb38a104bfe4cf7d2131af622bf9ecc1e7fad8",
+    "node_id": "C_kwDOKgHWb9oAKGJjZGIzOGExMDRiZmU0Y2Y3ZDIxMzFhZjYyMmJmOWVjYzFlN2ZhZDg",
+    "commit": {
+      "author": {
+        "name": "xNombre",
+        "email": "linux@andrzejperczak.com",
+        "date": "2023-01-13T19:44:01Z"
+      },
+      "committer": {
+        "name": "Weikai Kong",
+        "email": "priv@pppig236.com",
+        "date": "2025-08-10T19:53:57Z"
+      },
+      "message": "alarmtimer: Minimize wakeup time\n\nAlarmtimer sets its wakeup timeout to 2s no matter the actual time\nto nearest timer expiration. This can cause device to be awake for more\nthan needed.\n\nTo fix this set wakeup timeout to min + 1 ms for safety margin.\n\nTests revealed that average timer expiration is 1150ms in the future\nwhich suggests there is a room avilable to minimize wakeup times.\nBefore this change device would enter sleep not earlier than 2s after\nalarmtimer suspend error (-EBUSY). With this change average suspend\nafter alarmtimer suspend error time went down to 1.5s with a minimum of\n0.248ms (after filtering results higher than 2.6s).\n\nThis should lead to noticeable power savings as Android uses alarmtimer\nquite frequently.\n\nSigned-off-by: Andrzej Perczak <linux@andrzejperczak.com>\nSigned-off-by: Zlatan Radovanovic <zlatan.radovanovic@fet.ba>",
+      "tree": {
+        "sha": "f8ffcc8020bfd4d860e151bbab94065e9ca17e2c",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/git/trees/f8ffcc8020bfd4d860e151bbab94065e9ca17e2c"
+      },
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/git/commits/bcdb38a104bfe4cf7d2131af622bf9ecc1e7fad8",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQSA4SCNnXs9j8EUK4z+d0v/trP6OQUCaJj41QAKCRD+d0v/trP6\nOdq4AP0TFErq8qKMdiG7z16vGsSIQEWRKzHvafLwO9m+JCJR2QD/SXkYlufqn3zx\nY+CMl/Z244K7bkFpXSpxlMtQa9A6SAs=\n=vY6E\n-----END PGP SIGNATURE-----",
+        "payload": "tree f8ffcc8020bfd4d860e151bbab94065e9ca17e2c\nparent 28bc38133c2162dde448cdbf1d182b774b25dafa\nauthor xNombre <linux@andrzejperczak.com> 1673639041 +0000\ncommitter Weikai Kong <priv@pppig236.com> 1754855637 -0400\n\nalarmtimer: Minimize wakeup time\n\nAlarmtimer sets its wakeup timeout to 2s no matter the actual time\nto nearest timer expiration. This can cause device to be awake for more\nthan needed.\n\nTo fix this set wakeup timeout to min + 1 ms for safety margin.\n\nTests revealed that average timer expiration is 1150ms in the future\nwhich suggests there is a room avilable to minimize wakeup times.\nBefore this change device would enter sleep not earlier than 2s after\nalarmtimer suspend error (-EBUSY). With this change average suspend\nafter alarmtimer suspend error time went down to 1.5s with a minimum of\n0.248ms (after filtering results higher than 2.6s).\n\nThis should lead to noticeable power savings as Android uses alarmtimer\nquite frequently.\n\nSigned-off-by: Andrzej Perczak <linux@andrzejperczak.com>\nSigned-off-by: Zlatan Radovanovic <zlatan.radovanovic@fet.ba>\n",
+        "verified_at": "2025-08-10T20:07:24Z"
+      }
+    },
+    "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/bcdb38a104bfe4cf7d2131af622bf9ecc1e7fad8",
+    "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commit/bcdb38a104bfe4cf7d2131af622bf9ecc1e7fad8",
+    "comments_url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/bcdb38a104bfe4cf7d2131af622bf9ecc1e7fad8/comments",
+    "author": {
+      "login": "xNombre",
+      "id": 25608350,
+      "node_id": "MDQ6VXNlcjI1NjA4MzUw",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25608350?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/xNombre",
+      "html_url": "https://github.com/xNombre",
+      "followers_url": "https://api.github.com/users/xNombre/followers",
+      "following_url": "https://api.github.com/users/xNombre/following{/other_user}",
+      "gists_url": "https://api.github.com/users/xNombre/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/xNombre/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/xNombre/subscriptions",
+      "organizations_url": "https://api.github.com/users/xNombre/orgs",
+      "repos_url": "https://api.github.com/users/xNombre/repos",
+      "events_url": "https://api.github.com/users/xNombre/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/xNombre/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "28bc38133c2162dde448cdbf1d182b774b25dafa",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/28bc38133c2162dde448cdbf1d182b774b25dafa",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commit/28bc38133c2162dde448cdbf1d182b774b25dafa"
+      }
+    ]
+  }
+]

@@ -1,0 +1,89 @@
+[
+  {
+    "sha": "63aeb92d069b6b58673db1a81f7a810e47a170de",
+    "node_id": "C_kwDOKgHWb9oAKDYzYWViOTJkMDY5YjZiNTg2NzNkYjFhODFmN2E4MTBlNDdhMTcwZGU",
+    "commit": {
+      "author": {
+        "name": "Weikai Kong",
+        "email": "priv@pppig236.com",
+        "date": "2025-05-01T04:43:46Z"
+      },
+      "committer": {
+        "name": "Weikai Kong",
+        "email": "priv@pppig236.com",
+        "date": "2025-05-01T04:43:46Z"
+      },
+      "message": "Merge tag 'ASB-2025-04-05_12-5.10' of https://android.googlesource.com/kernel/common into lineage-22.2\n\nhttps://source.android.com/docs/security/bulletin/2025-04-01\nCVE-2024-50264\nCVE-2024-53197\nCVE-2024-56556\nCVE-2024-53150\n\n# By Michal Luczaj (3) and others\n# Via Treehugger Robot\n* tag 'ASB-2025-04-05_12-5.10' of https://android.googlesource.com/kernel/common:\n  UPSTREAM: net: sched: Disallow replacing of child qdisc from one parent to another\n  UPSTREAM: pfifo_tail_enqueue: Drop new packet when sch->limit == 0\n  UPSTREAM: vsock: Orphan socket after transport release\n  UPSTREAM: vsock: Keep the binding until socket destruction\n  UPSTREAM: bpf, vsock: Invoke proto::close on close()\n  BACKPORT: f2fs: compress: fix inconsistent update of i_blocks in release_compress_blocks and reserve_compress_blocks\n  ANDROID: SPF: Fix swap faults racing with fast-mremap",
+      "tree": {
+        "sha": "c6d03d0fb011b5a9b120589de82630a2d2bb934e",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/git/trees/c6d03d0fb011b5a9b120589de82630a2d2bb934e"
+      },
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/git/commits/63aeb92d069b6b58673db1a81f7a810e47a170de",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQSA4SCNnXs9j8EUK4z+d0v/trP6OQUCaBL8AgAKCRD+d0v/trP6\nOc7eAP4z8f5RrIljDY26KGN3Nek1JLyr4N5rqs00jO+GpN/BdQD/WK3bz6OecmFH\nSCR7C+jj/XX9ZKGsNrXmZQ/Tbav47Qk=\n=uIbY\n-----END PGP SIGNATURE-----",
+        "payload": "tree c6d03d0fb011b5a9b120589de82630a2d2bb934e\nparent 94b60541c28e7aff73e1dfd7719c591215cd63f7\nparent 4fd7634f32ffbb4fd4c09b757aa16327626a1749\nauthor Weikai Kong <priv@pppig236.com> 1746074626 -0400\ncommitter Weikai Kong <priv@pppig236.com> 1746074626 -0400\n\nMerge tag 'ASB-2025-04-05_12-5.10' of https://android.googlesource.com/kernel/common into lineage-22.2\n\nhttps://source.android.com/docs/security/bulletin/2025-04-01\nCVE-2024-50264\nCVE-2024-53197\nCVE-2024-56556\nCVE-2024-53150\n\n# By Michal Luczaj (3) and others\n# Via Treehugger Robot\n* tag 'ASB-2025-04-05_12-5.10' of https://android.googlesource.com/kernel/common:\n  UPSTREAM: net: sched: Disallow replacing of child qdisc from one parent to another\n  UPSTREAM: pfifo_tail_enqueue: Drop new packet when sch->limit == 0\n  UPSTREAM: vsock: Orphan socket after transport release\n  UPSTREAM: vsock: Keep the binding until socket destruction\n  UPSTREAM: bpf, vsock: Invoke proto::close on close()\n  BACKPORT: f2fs: compress: fix inconsistent update of i_blocks in release_compress_blocks and reserve_compress_blocks\n  ANDROID: SPF: Fix swap faults racing with fast-mremap\n",
+        "verified_at": "2025-05-01T04:49:56Z"
+      }
+    },
+    "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/63aeb92d069b6b58673db1a81f7a810e47a170de",
+    "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commit/63aeb92d069b6b58673db1a81f7a810e47a170de",
+    "comments_url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/63aeb92d069b6b58673db1a81f7a810e47a170de/comments",
+    "author": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "94b60541c28e7aff73e1dfd7719c591215cd63f7",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/94b60541c28e7aff73e1dfd7719c591215cd63f7",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commit/94b60541c28e7aff73e1dfd7719c591215cd63f7"
+      },
+      {
+        "sha": "4fd7634f32ffbb4fd4c09b757aa16327626a1749",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commits/4fd7634f32ffbb4fd4c09b757aa16327626a1749",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450/commit/4fd7634f32ffbb4fd4c09b757aa16327626a1749"
+      }
+    ]
+  }
+]

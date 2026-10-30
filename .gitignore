@@ -1,10 +1,29 @@
+# OS / editor noise
 .DS_Store
+._*
+*.swp
+
+# Local toolchains and generated build workspaces
+.venv/
+scratch/
+out/
+*.log
+__pycache__/
+*.pyc
+
+# Large / generated artifacts
 baseline/
 vendor_extract/
-probes/*.json
-
+vendor_dump/
 *.zip
 *.img
-vendor_dump/
-patches/optional-pjgowtham/
-probes/
+
+# Probe evidence:
+# - public GitHub API snapshots and the official manifest are versioned;
+# - raw device scans may contain serial/unique IDs, keep them local.
+probes/*
+!probes/README.md
+!probes/SHA256SUMS
+!probes/*.json
+!probes/lineage221_default.xml
+probes/device_scan/

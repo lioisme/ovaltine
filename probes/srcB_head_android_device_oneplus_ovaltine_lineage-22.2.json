@@ -1,0 +1,84 @@
+[
+  {
+    "sha": "608c302903400748c50692810c6c469c34dc3255",
+    "node_id": "C_kwDOKWA4T9oAKDYwOGMzMDI5MDM0MDA3NDhjNTA2OTI4MTBjNmM0NjljMzRkYzMyNTU",
+    "commit": {
+      "author": {
+        "name": "pjgowtham",
+        "email": "pjgowtham@gmail.com",
+        "date": "2024-01-29T17:24:27Z"
+      },
+      "committer": {
+        "name": "Weikai Kong",
+        "email": "priv@pppig236.com",
+        "date": "2025-08-21T23:31:49Z"
+      },
+      "message": "ovaltine: Update supported framerates for camera\n\n* Stock oplus camera does not expose 480p videos on any cameras and they are not needed.\n* Rear Main camera: 60fps video is supported on oplus camera but unexposed, so lets expose it.\n* Front cam: Only HD and FHD qualities are exposed and only upto 30fps in oplus camera. The same modes are exposed properly.\n* UW: Supports upto HD FHD 30|60 fps but with shitty quality even in oplus camera. Oplus camera switches to main lens if 4k quality is selected. 60fps remains unexposed, so lets expose it\n* Microscope supports HD 30|60 FPS modes. But unsupported FHD quality is exposed too.\n\nChange-Id: I32df3a96854d8ed1cad33a6d6b7d287610f3756f",
+      "tree": {
+        "sha": "c69aa3d2e8c8c52180421a6984d19a64e19d81d8",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/git/trees/c69aa3d2e8c8c52180421a6984d19a64e19d81d8"
+      },
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/git/commits/608c302903400748c50692810c6c469c34dc3255",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null,
+        "verified_at": null
+      }
+    },
+    "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/608c302903400748c50692810c6c469c34dc3255",
+    "html_url": "https://github.com/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commit/608c302903400748c50692810c6c469c34dc3255",
+    "comments_url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/608c302903400748c50692810c6c469c34dc3255/comments",
+    "author": {
+      "login": "pjgowtham",
+      "id": 828997,
+      "node_id": "MDQ6VXNlcjgyODk5Nw==",
+      "avatar_url": "https://avatars.githubusercontent.com/u/828997?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/pjgowtham",
+      "html_url": "https://github.com/pjgowtham",
+      "followers_url": "https://api.github.com/users/pjgowtham/followers",
+      "following_url": "https://api.github.com/users/pjgowtham/following{/other_user}",
+      "gists_url": "https://api.github.com/users/pjgowtham/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/pjgowtham/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/pjgowtham/subscriptions",
+      "organizations_url": "https://api.github.com/users/pjgowtham/orgs",
+      "repos_url": "https://api.github.com/users/pjgowtham/repos",
+      "events_url": "https://api.github.com/users/pjgowtham/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/pjgowtham/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "b5fa6120ca10cf0edb009276fc784aa1e274cfc2",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commits/b5fa6120ca10cf0edb009276fc784aa1e274cfc2",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_device_oneplus_ovaltine/commit/b5fa6120ca10cf0edb009276fc784aa1e274cfc2"
+      }
+    ]
+  }
+]

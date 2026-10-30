@@ -1,0 +1,84 @@
+[
+  {
+    "sha": "5c08eb4dec6a5b12fbe7e430aa2f7143237e168a",
+    "node_id": "C_kwDOKWA62NoAKDVjMDhlYjRkZWM2YTViMTJmYmU3ZTQzMGFhMmY3MTQzMjM3ZTE2OGE",
+    "commit": {
+      "author": {
+        "name": "dianlujitao",
+        "email": "dianlujitao@lineageos.org",
+        "date": "2025-01-02T03:34:02Z"
+      },
+      "committer": {
+        "name": "Weikai Kong",
+        "email": "priv@pppig236.com",
+        "date": "2025-03-04T20:04:50Z"
+      },
+      "message": "sm8450-common: move to aidl bootctrl hal\n\nChange-Id: I50fd09148097f0cda03c1a105340a3fd5f55ce8d\nSigned-off-by: Weikai Kong <priv@pppig236.com>",
+      "tree": {
+        "sha": "fd4d39d6ae216ee58646652b04cf0c44784fd3da",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/git/trees/fd4d39d6ae216ee58646652b04cf0c44784fd3da"
+      },
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/git/commits/5c08eb4dec6a5b12fbe7e430aa2f7143237e168a",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQSA4SCNnXs9j8EUK4z+d0v/trP6OQUCZ8dc4gAKCRD+d0v/trP6\nObF2AP4lDvN5/acEYdIbaQnZjYa6nJxf7StLsCLf1K7xozunjgD+NUqWCSuOKAZM\nVSkDr1VGg79FPK8CCFsXxAyU1sqzLw0=\n=tadF\n-----END PGP SIGNATURE-----",
+        "payload": "tree fd4d39d6ae216ee58646652b04cf0c44784fd3da\nparent ea5ed51f601b2c0d967505b2822fa26c47eeaeaf\nauthor dianlujitao <dianlujitao@lineageos.org> 1735788842 +0800\ncommitter Weikai Kong <priv@pppig236.com> 1741118690 -0500\n\nsm8450-common: move to aidl bootctrl hal\n\nChange-Id: I50fd09148097f0cda03c1a105340a3fd5f55ce8d\nSigned-off-by: Weikai Kong <priv@pppig236.com>\n",
+        "verified_at": "2025-03-04T20:34:38Z"
+      }
+    },
+    "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/commits/5c08eb4dec6a5b12fbe7e430aa2f7143237e168a",
+    "html_url": "https://github.com/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/commit/5c08eb4dec6a5b12fbe7e430aa2f7143237e168a",
+    "comments_url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/commits/5c08eb4dec6a5b12fbe7e430aa2f7143237e168a/comments",
+    "author": {
+      "login": "moetayuko",
+      "id": 5774651,
+      "node_id": "MDQ6VXNlcjU3NzQ2NTE=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5774651?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/moetayuko",
+      "html_url": "https://github.com/moetayuko",
+      "followers_url": "https://api.github.com/users/moetayuko/followers",
+      "following_url": "https://api.github.com/users/moetayuko/following{/other_user}",
+      "gists_url": "https://api.github.com/users/moetayuko/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/moetayuko/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/moetayuko/subscriptions",
+      "organizations_url": "https://api.github.com/users/moetayuko/orgs",
+      "repos_url": "https://api.github.com/users/moetayuko/repos",
+      "events_url": "https://api.github.com/users/moetayuko/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/moetayuko/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "ea5ed51f601b2c0d967505b2822fa26c47eeaeaf",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/commits/ea5ed51f601b2c0d967505b2822fa26c47eeaeaf",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_device_oneplus_sm8450-common/commit/ea5ed51f601b2c0d967505b2822fa26c47eeaeaf"
+      }
+    ]
+  }
+]

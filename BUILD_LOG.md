@@ -1,5 +1,7 @@
 # BUILD_LOG.md — 构建与操作日志
 
+> **2026-10-31 审计注记**：本文件末尾“未进入 repo sync / brunch 阶段”与上文矛盾。事实：已执行 `repo sync`（约 245 GB）和 4 轮 `brunch`，均未成功，无 `out/target/product/ovaltine`。以 `AUDIT_REPORT.md` DOC-001 为准。
+
 > 记录规则：每次构建尝试、探针、提取操作即时记录（命令、分支、commit hash、结果、错误摘要）。
 
 ---

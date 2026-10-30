@@ -122,3 +122,28 @@
 **维持 lineage-22.1**。理由核心：与真机现运行底包（OOS 15 EX01）同代、blob 兼容性已实测、
 已知补丁在祖先链、内核树仍在维护、且有 XDA 非官方构建历史——是"成熟度/安全性/非激进"
 三维约束下的唯一同时满足项。本决策不改变 DECISION-001 结论，仅补充真机证据后复核确认。
+
+---
+
+## [DECISION-005] 审计事实更正：DECISION-003 的“不执行 sync/brunch”前提已失效
+
+- **日期**：2026-10-31
+- **状态**：已生效（事实记录；不改变 DECISION-001/004 的 22.1 目标）
+- **触发**：全量审计（`AUDIT_REPORT.md`）发现 `DECISION-003` 与后续 `BUILD_LOG.md`/构建日志矛盾
+
+### 事实
+
+1. 2026-10-29/30 实际执行了 `repo sync`，同步约 245 GB；`frameworks/base` 因 GitHub 502 改为 shallow clone + 手工 worktree。
+2. 实际执行了 4 轮 `brunch`：
+   - 第 1 轮：soong bootstrap 因 macOS SDK 26.5 + Go 测试失败；
+   - 第 2 轮：bootstrap 通过，soong_build 启动；
+   - 第 3 轮：soong 分析 3:53:04 后被 `Got signal: terminated` 终止；
+   - 第 4 轮：`build/soong/soong_ui.bash: line 20: T: unbound variable` 直接退出。
+3. `out/target/product/ovaltine` 不存在；没有任何可刷写镜像。
+4. DECISION-003 中“本会话内不进行全量 repo sync，不进行 brunch”的表述已不再代表事实；其结论“构建宿主阻塞”仍然成立，但依据需改为实际构建尝试。
+
+### 判定
+
+- 主构建路径改为 **Linux x86_64（32 GB RAM 起）**；macOS 仅保留为实验性分析环境，不进入发布路径。
+- `STATUS.md`/`BUILD_LOG.md` 已加审计注记；详细整改见 `AUDIT_REPORT.md` DOC-001 与 `TASK_PLAN.md` T-00。
+- 本条不替代 DECISION-001/004 的版本选择；版本安全性问题另见 `AUDIT_REPORT.md` SEC-002/ARCH-001。

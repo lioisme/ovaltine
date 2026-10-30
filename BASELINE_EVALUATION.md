@@ -1,5 +1,7 @@
 # BASELINE_EVALUATION.md — lineage-ovaltine-dev 采纳评估
 
+> **2026-10-31 审计注记**：本文件中的补丁“已包含于 22.1 祖先链”结论仅对 `lineage-ovaltine-dev/android_device_oneplus_sm8450-common` 成立；最终 manifest 使用 pjgowtham common，HBM/wise-light/rear-ALS/aux 补丁实测不可应用。以 `AUDIT_REPORT.md` DRV-003 为准。
+
 > 评估日期：2026-10-29。构建目标：lineage-22.1（DECISION-001）。
 > 原始探针证据：`probes/*.json`（GitHub API 存档）；只读镜像：`baseline/`（HEAD 与 API 交叉验证一致）。
 > GitHub REST 未认证探针当日消耗约 36 次，全部为幂等 GET。

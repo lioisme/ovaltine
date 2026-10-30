@@ -1,0 +1,64 @@
+[
+  {
+    "sha": "cb014aff762959c659804cdacc219d9e2720e95f",
+    "node_id": "C_kwDOKga-4doAKGNiMDE0YWZmNzYyOTU5YzY1OTgwNGNkYWNjMjE5ZDllMjcyMGU5NWY",
+    "commit": {
+      "author": {
+        "name": "Asutosh Mohapatra",
+        "email": "quic_asutmoha@quicinc.com",
+        "date": "2023-07-11T07:54:03Z"
+      },
+      "committer": {
+        "name": "Weikai Kong",
+        "email": "priv@pppig236.com",
+        "date": "2025-01-13T21:12:18Z"
+      },
+      "message": "qcacld-3.0: Avoid allocating large chunk of memory statically\n\nCurrently in wlan_is_nan_allowed_on_6ghz_freq and\n__wlan_hdd_sysfs_freq_show static allocation of 6 GHz\nchannel list is present which leads to stack overflow.\n\nTo address this issue allocate 6 GHz channel list\ndynamically.\n\nChange-Id: If363270ab51516b67c68399f805a0434ccbb5bd3\nCRs-Fixed: 3557442",
+      "tree": {
+        "sha": "056b3a69a8226dce340fe4722749a23a2742512f",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/git/trees/056b3a69a8226dce340fe4722749a23a2742512f"
+      },
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/git/commits/cb014aff762959c659804cdacc219d9e2720e95f",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQSA4SCNnXs9j8EUK4z+d0v/trP6OQUCZ4WBsgAKCRD+d0v/trP6\nOR7YAP9WCk7r5WYXcj4ze7W+erLx38xZML32SnjRdvKKNFdSlQD+JA0X5lBlOzaV\nxI2njbzIXGQ6Lo/TOQwCOCrO7u++ZwI=\n=YOZ4\n-----END PGP SIGNATURE-----",
+        "payload": "tree 056b3a69a8226dce340fe4722749a23a2742512f\nparent 9d77710f3d2f6eed3ea60f22a82556e425e18916\nauthor Asutosh Mohapatra <quic_asutmoha@quicinc.com> 1689062043 +0530\ncommitter Weikai Kong <priv@pppig236.com> 1736802738 -0500\n\nqcacld-3.0: Avoid allocating large chunk of memory statically\n\nCurrently in wlan_is_nan_allowed_on_6ghz_freq and\n__wlan_hdd_sysfs_freq_show static allocation of 6 GHz\nchannel list is present which leads to stack overflow.\n\nTo address this issue allocate 6 GHz channel list\ndynamically.\n\nChange-Id: If363270ab51516b67c68399f805a0434ccbb5bd3\nCRs-Fixed: 3557442\n",
+        "verified_at": "2025-01-14T02:49:39Z"
+      }
+    },
+    "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/commits/cb014aff762959c659804cdacc219d9e2720e95f",
+    "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/commit/cb014aff762959c659804cdacc219d9e2720e95f",
+    "comments_url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/commits/cb014aff762959c659804cdacc219d9e2720e95f/comments",
+    "author": null,
+    "committer": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "9d77710f3d2f6eed3ea60f22a82556e425e18916",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/commits/9d77710f3d2f6eed3ea60f22a82556e425e18916",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-modules/commit/9d77710f3d2f6eed3ea60f22a82556e425e18916"
+      }
+    ]
+  }
+]

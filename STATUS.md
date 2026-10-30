@@ -1,5 +1,7 @@
 # STATUS.md — 实时状态（最终报告）
 
+> **2026-10-31 审计注记（事实更正）**：本文件是 2026-10-29 的终止状态快照，已被后续 brunch 尝试与 `AUDIT_REPORT.md` 取代。事实更正：`repo sync` 已执行（约 245 GB）；`brunch` 已执行 4 轮但均未成功；`out/target/product/ovaltine` 不存在；vendor blobs 已提取完成（0 missing）。以 `AUDIT_REPORT.md` / `TASK_PLAN.md` 为准。
+
 > 更新规则：每完成一个原子动作立即更新，禁止事后补写。
 > 最后更新：2026-10-29 06:30 (本地)
 > **终止状态：任务书 §6.3 阻塞路径**（构建步骤阻塞于宿主环境，DECISION-003）

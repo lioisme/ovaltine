@@ -1,0 +1,84 @@
+[
+  {
+    "sha": "c05fa09edcb9838df2d3b692d4fb25eac55bda2b",
+    "node_id": "C_kwDOKga7MdoAKGMwNWZhMDllZGNiOTgzOGRmMmQzYjY5MmQ0ZmIyNWVhYzU1YmRhMmI",
+    "commit": {
+      "author": {
+        "name": "pppig236",
+        "email": "priv@pppig236.com",
+        "date": "2024-08-27T22:52:05Z"
+      },
+      "committer": {
+        "name": "pppig236",
+        "email": "priv@pppig236.com",
+        "date": "2024-08-27T22:52:29Z"
+      },
+      "message": "cape_overlay_common: Kill useless reserved region of BL log\n\nIn file included from /src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/ovaltine-21841-cape-overlay.dts:5:\n/src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/cape_overlay_common.dtsi:254:9: warning: '/*' within block comment [-Wcomment]\n        /*\n        ^\nIn file included from /src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/ovaltine-21845-cape-overlay.dts:5:\n/src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/cape_overlay_common.dtsi:254:9: warning: '/*' within block comment [-Wcomment]\n        /*\n        ^\n1 warning generated.\n1 warning generated.\n\nSigned-off-by: pppig236 <priv@pppig236.com>",
+      "tree": {
+        "sha": "985186b5dbb3d9a5d1f4e5554b88208b193e3d23",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/git/trees/985186b5dbb3d9a5d1f4e5554b88208b193e3d23"
+      },
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/git/commits/c05fa09edcb9838df2d3b692d4fb25eac55bda2b",
+      "comment_count": 0,
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\niHUEABYKAB0WIQSA4SCNnXs9j8EUK4z+d0v/trP6OQUCZs5YtQAKCRD+d0v/trP6\nOZUVAQDq1lTNxnxmAGLmV+6/hN0GSK8qgbovBaPlcALcx5a/6gEApktLIYzfq8j7\niTwyeTiaw8eQFT/njzRLdg1bHdU4Vwg=\n=kH+m\n-----END PGP SIGNATURE-----",
+        "payload": "tree 985186b5dbb3d9a5d1f4e5554b88208b193e3d23\nparent 76b96ceba90deb00fbe003079d8755f25f438a20\nauthor pppig236 <priv@pppig236.com> 1724799125 -0400\ncommitter pppig236 <priv@pppig236.com> 1724799149 -0400\n\ncape_overlay_common: Kill useless reserved region of BL log\n\nIn file included from /src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/ovaltine-21841-cape-overlay.dts:5:\n/src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/cape_overlay_common.dtsi:254:9: warning: '/*' within block comment [-Wcomment]\n        /*\n        ^\nIn file included from /src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/ovaltine-21845-cape-overlay.dts:5:\n/src/losu/kernel/oneplus/sm8450/arch/arm64/boot/dts/vendor/oplus/cape_overlay_common.dtsi:254:9: warning: '/*' within block comment [-Wcomment]\n        /*\n        ^\n1 warning generated.\n1 warning generated.\n\nSigned-off-by: pppig236 <priv@pppig236.com>\n",
+        "verified_at": "2024-11-24T05:11:56Z"
+      }
+    },
+    "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/commits/c05fa09edcb9838df2d3b692d4fb25eac55bda2b",
+    "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/commit/c05fa09edcb9838df2d3b692d4fb25eac55bda2b",
+    "comments_url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/commits/c05fa09edcb9838df2d3b692d4fb25eac55bda2b/comments",
+    "author": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "PIPIPIG233666",
+      "id": 43439674,
+      "node_id": "MDQ6VXNlcjQzNDM5Njc0",
+      "avatar_url": "https://avatars.githubusercontent.com/u/43439674?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/PIPIPIG233666",
+      "html_url": "https://github.com/PIPIPIG233666",
+      "followers_url": "https://api.github.com/users/PIPIPIG233666/followers",
+      "following_url": "https://api.github.com/users/PIPIPIG233666/following{/other_user}",
+      "gists_url": "https://api.github.com/users/PIPIPIG233666/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/PIPIPIG233666/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/PIPIPIG233666/subscriptions",
+      "organizations_url": "https://api.github.com/users/PIPIPIG233666/orgs",
+      "repos_url": "https://api.github.com/users/PIPIPIG233666/repos",
+      "events_url": "https://api.github.com/users/PIPIPIG233666/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/PIPIPIG233666/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "76b96ceba90deb00fbe003079d8755f25f438a20",
+        "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/commits/76b96ceba90deb00fbe003079d8755f25f438a20",
+        "html_url": "https://github.com/lineage-ovaltine-dev/android_kernel_oneplus_sm8450-devicetrees/commit/76b96ceba90deb00fbe003079d8755f25f438a20"
+      }
+    ]
+  }
+]

@@ -1,5 +1,7 @@
 # HARDWARE_MATRIX.md — 硬件清单与驱动状态矩阵
 
+> **2026-10-31 审计注记**：本矩阵已被 `HARDWARE_INVENTORY.md` 取代，保留为历史。事实更正：vendor blobs 已于 2026-10-29 提取完成；HBM/wise-light/rear-ALS 的“22.1 祖先链”结论仅对 lineage-ovaltine-dev common 成立，对最终选定的 pjgowtham common 不成立。以 `AUDIT_REPORT.md` 为准。
+
 > 设备：OnePlus Ace Pro / 10T（ovaltine, CPH2415）· SoC SM8475（cape）· 底包 CPH2415_15.0.0.1901(EX01)
 >
 > **⚠️ 声明：无真机实测。本矩阵所有状态基于源码证据、官方/组织 Release notes 与兄弟硬件（SM8450/taro）驱动复用关系推断，按任务书规则状态上限为"一般"。**

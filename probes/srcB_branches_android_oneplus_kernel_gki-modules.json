@@ -1,0 +1,10 @@
+[
+  {
+    "name": "lineage-23.2",
+    "commit": {
+      "sha": "0365f6a74f1ac97a274d8a7041f0c56e63d1982e",
+      "url": "https://api.github.com/repos/lineage-ovaltine-dev/android_oneplus_kernel_gki-modules/commits/0365f6a74f1ac97a274d8a7041f0c56e63d1982e"
+    },
+    "protected": false
+  }
+]
