@@ -128,6 +128,28 @@ F1 E9 D3 84 52 49 3F A0 72 -> F1 A9 00 80 52 09 00 A0 72
 VERIFY OK
 ```
 
+### 2.7 完整 pinned manifest
+
+- 在 `/Volumes/los-build/aosp` 执行 `repo manifest -r -o manifests/lineage-22.1-20261031.xml`。
+- 生成 1474 个 `<project>`，全部带 40 位 revision。
+- 生成时 `default.xml` 含 USTC 镜像；已把 `aosp` remote 还原为 `https://android.googlesource.com`，镜像覆盖应由 local manifest/脚本处理。
+- 新增 `manifests/README.md`，说明基础 manifest `46ed254`、6 个本地工程、shallow `frameworks/base` 例外、补丁不包含在 manifest 内。
+
+### 2.8 Vendor blob SHA-256 清单
+
+- 对 `scratch/vendor/oneplus` 生成 `artifacts/blob-manifest.sha256`：2688 个文件（ovaltine 1419 + common 1269），约 2.3 GB。
+- 校验：`2688/2688 OK`。
+- 新增 `tools/verify_vendor_blobs.sh`，可在 `scratch/vendor` 或构建树 `vendor` 上校验。
+- 已把 wise-light 名称替换应用到 `scratch/vendor` 与构建树 `vendor` 的 `sensors.ssc.so`；替换后大小不变，`qti.sensor.wise_light` 为 0。
+- 新增 `BLOB_PROVENANCE.md` 记录规模、已应用适配、覆盖缺口（源 pin 仍 3/1415、0/1265；SBOM/许可证未完成）。
+
+### 2.9 macOS `$T` 构建阻塞修复
+
+- `build/soong/soong_ui.bash` 的 Darwin 分支在 `set -u` 下引用未定义 `$T`；改为用脚本路径推导 `SOONG_TOP`。
+- 导出 `patches/macos-build/0003-soong-ui-darwin-trace-top.patch`；`scripts/apply-patches.sh` 在 `APPLY_MAC_PATCHES=1` 且 Darwin 时应用。
+- `bash -n build/soong/soong_ui.bash` 通过。
+- 新增 `patches/macos-build/README.md`，明确 macOS 仅为实验环境、0002 全局跳过 Go 测试的已知缺陷。
+
 ---
 
 ## 3. 变更文件与补丁
@@ -137,8 +159,9 @@ VERIFY OK
 | `patches/adaptation/0001-device-ovaltine-fix-identity-and-dead-config.patch` | device/oneplus/ovaltine | `lineage_ovaltine.mk`、`BoardConfig.mk` |
 | `patches/adaptation/0002-common-hbm-deny-access.patch` | device/oneplus/sm8450-common | `init/init.oplus.rc` |
 | `patches/adaptation/0003-common-wise-light-and-rear-als.patch` | device/oneplus/sm8450-common | `extract-files.py`、`overlay/.../config.xml` |
+| `patches/macos-build/0003-soong-ui-darwin-trace-top.patch` | build/soong | `soong_ui.bash` |
 
-补丁均可对基线 `59052db` / `258dbbd` 通过 `git apply --check`。
+补丁均可对基线 `59052db` / `258dbbd` / 构建树 `build/soong` 通过 `git apply --check` 或反向检查。
 
 ---
 
@@ -151,6 +174,9 @@ VERIFY OK
 | sensor blob 替换 | 长度不变；wise 0；light/rear 存在 |
 | `apply-patches.sh` 幂等 | 已应用项全部 skip |
 | `verify-tree.sh` | 18 项 OK，VERIFY OK |
+| 完整 pinned manifest | 1474 工程，全部 40 位 revision |
+| blob 清单 | 2688/2688 OK |
+| `soong_ui.bash` `bash -n` | 通过 |
 
 ---
 
@@ -186,3 +212,4 @@ VERIFY OK
 | 版本 | 日期 | 变更 | 作者 |
 |---|---|---|---|
 | 1.0 | 2026-10-31 | 首轮静态适配：身份、HBM、wise-light 名称替换、rear-ALS、补丁脚本、禁刷约束 | 审计 Agent |
+| 1.1 | 2026-10-31 | 增加完整 pinned manifest（1474 工程）、blob SHA-256 清单（2688 文件）、macOS `$T` 修复 | 审计 Agent |

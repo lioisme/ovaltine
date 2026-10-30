@@ -3,6 +3,7 @@
 | 工具 | 用途 | 依赖 |
 |---|---|---|
 | `extract_payload.py` | 从 A/B full OTA `payload.bin` 提取分区镜像，逐操作/最终分区 SHA-256 校验 | Python 3.9+、`payload_dumper`（仅 protobuf 定义） |
+| `verify_vendor_blobs.sh` | 校验已提取的 vendor 树与 `artifacts/blob-manifest.sha256` 一致 | Bash、`sha256sum` 或 `shasum` |
 
 ## 使用
 

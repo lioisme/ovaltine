@@ -30,7 +30,10 @@ OnePlus Ace Pro / 10T（codename **ovaltine**，目标型号 **CPH2415**）的 L
 | [SOP.md](SOP.md) | 构建、内存启动、DSU、测试、退出 SOP（v2.0，禁止真实刷机） |
 | [HARDWARE_INVENTORY.md](HARDWARE_INVENTORY.md) | 硬件 BOM、variant 差异、测试映射 |
 | [DRIVER_INVENTORY.md](DRIVER_INVENTORY.md) | 驱动来源、开源/闭源、许可证、回退方案 |
+| [BLOB_PROVENANCE.md](BLOB_PROVENANCE.md) | Vendor blob 溯源、2688 文件 SHA-256 清单与覆盖缺口 |
 | [ADAPTATION_LOG.md](ADAPTATION_LOG.md) | 2026-10-31 起的适配实施记录与静态验证结果 |
+| [manifests/README.md](manifests/README.md) | 完整 pinned manifest（1474 工程）与使用说明 |
+| [artifacts/README.md](artifacts/README.md) | 构建/提取产物校验清单说明 |
 | [DEVICE_REPORT.md](DEVICE_REPORT.md) | 真机扫描报告（历史证据） |
 | [BASELINE_EVALUATION.md](BASELINE_EVALUATION.md) | 社区基线采纳评估（注意：部分结论已被审计修正） |
 | [HARDWARE_MATRIX.md](HARDWARE_MATRIX.md) | 旧硬件状态矩阵（已被 HARDWARE_INVENTORY 取代，保留历史） |
@@ -76,12 +79,14 @@ M0 审计完成（当前）
 ├── DEVICE_REPORT.md / BASELINE_EVALUATION.md / HARDWARE_MATRIX.md
 ├── DECISIONS.md / STATUS.md / BUILD_LOG.md
 ├── local_manifests/           # 6 个工程 pinned revision
+├── manifests/                 # 完整 pinned manifest（1474 工程）
+├── artifacts/                 # blob SHA-256 清单与产物说明
 ├── patches/                   # 历史补丁、EX01 适配、本轮 adaptation、macOS 适配
 ├── scripts/                   # apply-patches / verify-tree 等（无刷机脚本）
 ├── probes/                    # 公共探针证据（设备扫描原文因隐私不入库）
 ├── baseline/                  # 只读镜像（忽略，不入库）
 ├── vendor_extract/            # 底包/镜像/dump（忽略，不入库）
-├── tools/                     # 可提交的提取工具
+├── tools/                     # 提取/校验工具
 ├── scratch/                   # 生成工作区（忽略）
 └── CPH2415_15.0.0.1901_EX01.zip  # 底包（忽略）
 ```

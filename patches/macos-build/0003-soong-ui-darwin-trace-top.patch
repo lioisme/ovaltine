@@ -1,0 +1,15 @@
+diff --git a/soong_ui.bash b/soong_ui.bash
+index 77378807f..db40e9e65 100755
+--- a/soong_ui.bash
++++ b/soong_ui.bash
+@@ -17,7 +17,9 @@
+ # To track how long we took to startup.
+ case $(uname -s) in
+   Darwin)
+-    export TRACE_BEGIN_SOONG=`$T/prebuilts/build-tools/path/darwin-x86/date +%s%3N`
++    # T is not set yet under `set -u`; derive TOP from this script before require_top.
++    SOONG_TOP=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
++    export TRACE_BEGIN_SOONG=$("$SOONG_TOP/prebuilts/build-tools/path/darwin-x86/date" +%s%3N)
+     ;;
+   *)
+     export TRACE_BEGIN_SOONG=$(date +%s%N)

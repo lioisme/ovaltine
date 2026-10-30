@@ -142,7 +142,7 @@
 | T-02 | 完整 manifest 与补丁自动化 | P0 | T-00 | 进行中（补丁脚本完成；完整 manifest 待 Linux） |
 | T-03 | 设备身份与 variant 对齐 | P0 | T-02 | 进行中（静态身份修复完成；DSU 验证待 T-10） |
 | T-04 | 基线选型复审与 common 对齐 | P0 | T-02 | 未开始 |
-| T-05 | Blob 溯源、SBOM 与校验 | P0 | T-03/T-04 | 未开始 |
+| T-05 | Blob 溯源、SBOM 与校验 | P0 | T-03/T-04 | 进行中（提取产物 SHA-256 清单完成；SBOM/变体差异待） |
 | T-06 | 已知修复端口（HBM/wise-light/ALS/aux/offline） | P0 | T-04 | 进行中（HBM/名称替换/ALS 静态完成；SIGSCAN 待验证） |
 | T-07 | 内核/模块/设备树配套 | P1 | T-02 | 未开始 |
 | T-08 | 构建全绿与产物验证 | P0 | T-01/T-02/T-03/T-04/T-06 | 未开始 |
@@ -246,14 +246,14 @@
 - **实现方向**
   1. 以 CPH2415 EX01 dump 为唯一来源，重生成/校对两棵树的 `proprietary-files.txt`；删除 CPH2417/CPH2413 来源注释。
   2. 为每个 blob 记录：源分区、路径、大小、SHA256、所属硬件、许可证状态。
-  3. 尽量使用 SHA256 pin；若 extract-utils 只支持 SHA1，增加 `verify-blobs.sh` 后处理校验。
+  3. 已生成 `artifacts/blob-manifest.sha256`（2688 个文件）+ `tools/verify_vendor_blobs.sh`；后续把源 pin/SBOM/许可证状态补上。
   4. 生成 `SBOM.csv`/`SBOM.json` 与 `CREDITS.md`；标注可再分发/不可再分发。
   5. 去 pin 条目必须附原因、替代哈希、人工核对记录、风险接受。
 - **验收标准**
-  - extract-files 0 missing；`verify-blobs.sh` 100% 通过；哈希漂移 CI 失败。
+  - extract-files 0 missing；`verify_vendor_blobs.sh` 100% 通过；哈希漂移 CI 失败。
   - SBOM 覆盖全部闭源组件；每个 blob 有来源与许可证状态。
   - 发布包不含未授权 blob；NOTICE/CREDITS 齐全。
-- **状态**：未开始。
+- **状态**：进行中（`artifacts/blob-manifest.sha256` 2688/2688 通过；源 pin/SBOM/变体差异待完成）。
 
 #### T-06 已知修复端口
 

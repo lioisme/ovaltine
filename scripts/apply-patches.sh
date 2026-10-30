@@ -53,6 +53,7 @@ if [[ "${APPLY_MAC_PATCHES:-0}" == "1" ]]; then
   else
     echo "== macOS experimental patches =="
     apply_one "$AOSP_ROOT/build/soong" "$PATCH_ROOT/patches/macos-build/0001-soong-cc-config-allow-macos-sdk-26.patch"
+    apply_one "$AOSP_ROOT/build/soong" "$PATCH_ROOT/patches/macos-build/0003-soong-ui-darwin-trace-top.patch"
     apply_one "$AOSP_ROOT/build/blueprint" "$PATCH_ROOT/patches/macos-build/0002-blueprint-bootstrap-skip-go-tests-on-darwin.patch"
   fi
 fi
